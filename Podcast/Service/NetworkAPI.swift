@@ -13,14 +13,10 @@ import CloudKit
 
 class NetworkAPI: NSObject, URLSessionTaskDelegate, URLSessionDownloadDelegate {
     
-    
     static let shared = NetworkAPI()
     private let host = "https://telegraf.adrianf.no/"
+    var activeDownloads = [String : Episode]()
     
-    //typealias HTTPHeaders = [String: Any]
-    //private let host = "http://localhost:8000"
-
-
 }
 
 extension NetworkAPI {
@@ -47,16 +43,6 @@ extension NetworkAPI {
     }
     
     func fetchJWT(completionHandler: @escaping (String) -> ()) {
-    
-//        let predicate = NSPredicate(value: true)
-//        let query = CKQuery(recordType: "details", predicate: predicate)
-//        CKContainer.default().privateCloudDatabase.perform(query, inZoneWith: nil) { (records, err) in
-//            if let err = err {
-//                print("Failed to fetch zone: ", err)
-//                return
-//            }
-//            print(records)
-//        }
         
         guard let url = URL(string: "\(host)/signup") else { return }
         fetchGenericData(url: url) { (res: CreateUserResponse) in
@@ -219,55 +205,17 @@ extension NetworkAPI {
     }
     
     func downloadEpisode(episode: Episode, episodeModel: EpisodeModel, completionHandler: @escaping()->()) {
-        
         guard var name = episode.name else { return }
         name = name.replacingOccurrences(of: " ", with: "")
         
         let config = URLSessionConfiguration.background(withIdentifier: "no.adrianf.telegraf.background.\(name)")
-        
-        
         let session = URLSession(configuration: config, delegate: self, delegateQueue: OperationQueue())
-        
-        
         guard let url = URL(string: episodeModel.episodeUrl ?? "") else { return }
-        print(episodeModel.episodeUrl)
         
-        let task = session.downloadTask(with: url)
+        guard let podcast = episode.podcast else { return }
+        activeDownloads[name] = episode
         
-        task.resume()
-        
-        /*
-        guard let fromLink = episodeModel?.episodeUrl, let url = URL(string: fromLink) else { return }
-        let suggestedLocation = DownloadRequest.suggestedDownloadDestination()
-        
-        
-        
-        Alamofire.download(url, to: suggestedLocation).validate().downloadProgress { (progress) in
-            
-            //CORE DATA
-            CoreDataManager.shared.updateEpisodeDownloadProgress(episode: episode, downloadProgress: progress.fractionCompleted)
-            
-            //Notify subscribers
-            NotificationCenter.default.post(name: .handleDownloadProgress, object: episodeModel, userInfo: [
-                "title":episodeModel?.name ?? "",
-                "progress":progress.fractionCompleted
-                ])
-            
-            }.response { (response) in
-                if let error = response.error {
-                    print("failed to download episode: ", error)
-                    return
-                }
-                
-                let context = CoreDataManager.shared.persistentContainer.viewContext
-                episode.lastLocalPathCompoenent = response.destinationURL?.lastPathComponent
-                do {
-                    try context.save()
-                    completionHandler()
-                } catch let error {
-                    print("failed to save local path: ", error)
-                }
-        }*/
+        session.downloadTask(with: url).resume()
     }
 }
 
@@ -277,10 +225,14 @@ extension NetworkAPI {
         guard var name = session.configuration.identifier else { return }
         name = name.replacingOccurrences(of: "no.adrianf.telegraf.background.", with: "")
         
+        let podcast = activeDownloads[name]?.podcast
+        var podcastName = podcast?.name ?? "unknown"
+        podcastName = podcastName.replacingOccurrences(of: " ", with: "_")
+        
         let documentFolder = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
         
         guard let lastUrlPath = downloadTask.originalRequest?.url?.lastPathComponent else { return }
-        guard let newLocation = documentFolder.first?.appendingPathComponent(lastUrlPath) else { return }
+        guard let newLocation = documentFolder.first?.appendingPathComponent("\(podcastName)/\(lastUrlPath)") else { return }
         
         if FileManager.default.fileExists(atPath: newLocation.relativePath) {
             do {
@@ -291,17 +243,65 @@ extension NetworkAPI {
             }
         }
         
-        do {
-            try FileManager.default.moveItem(at: location, to: newLocation)
-            NotificationCenter.default.post(name: .handleDownloadFinished, object: newLocation, userInfo: [
-                "name":name
-                ])
-        } catch let err {
-            print("Failed to move file!",  err)
+        guard let folderLocation = documentFolder.first?.appendingPathComponent(podcastName) else { return }
+        var exists: ObjCBool = false
+        if !FileManager.default.fileExists(atPath: folderLocation.relativePath, isDirectory: &exists) {
+            do {
+                try FileManager.default.createDirectory(at: folderLocation, withIntermediateDirectories: true, attributes: nil)
+            } catch let err {
+                print(err)
+                return
+            }
         }
         
-        try? FileManager.default.removeItem(at: location)
+        do {
+            try FileManager.default.moveItem(at: location, to: newLocation)
+        } catch let err {
+            print("Failed to move file!",  err)
+            return
+        }
+        
+        guard let episode = activeDownloads[name] else { return }
+        let duration = saveEpisodePath(episode: episode, path: newLocation, name: podcastName)
+        
+        NotificationCenter.default.post(name: .handleDownloadFinished, object: nil, userInfo: [
+            "name":name,
+            "length": duration
+            ])
+        
+        activeDownloads[name] = nil
+        
     }
+    
+    func saveEpisodePath(episode: Episode, path: URL, name: String) -> Float64 {
+        
+        let context = CoreDataManager.shared.persistentContainer.viewContext
+        
+        let pathComponents = path.pathComponents
+        var episodePath = ""
+        episodePath.append(contentsOf: pathComponents[pathComponents.count-2])
+        episodePath.append(contentsOf: "/")
+        episodePath.append(contentsOf: pathComponents[pathComponents.count-1])
+        print(episodePath)
+        
+        episode.lastLocalPathCompoenent = episodePath
+        
+        let asset = AVURLAsset(url: path)
+        let assetDuration = asset.duration
+        let assetDurationSeconds = CMTimeGetSeconds(assetDuration)
+        episode.timeLength = assetDurationSeconds
+        episode.downloadProgress = 100
+        
+        do {
+            try context.save()
+        } catch let error {
+            print("failed to save local path: ", error)
+        }
+
+        return assetDurationSeconds
+    }
+    
+
     
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
         

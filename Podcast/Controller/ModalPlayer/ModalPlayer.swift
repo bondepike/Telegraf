@@ -218,6 +218,12 @@ extension ModalPlayer {
         setupAudioSession()
         
         guard var fileUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return }
+        
+//        guard let podcast = episode.podcast else { return }
+//        var podcastName = podcast.name ?? ""
+//        podcastName = podcastName.replacingOccurrences(of: " ", with: "_")
+//        fileUrl.appendPathComponent(podcastName)
+        
         fileUrl.appendPathComponent(episode.lastLocalPathCompoenent ?? "")
         
         let playerItem = AVPlayerItem(url: fileUrl)
