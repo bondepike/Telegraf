@@ -37,7 +37,6 @@ extension SubscriptionsController {
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cellId", for: indexPath) as! FavoritesCell
-        cell.backgroundColor = .purple
         if let podcast = self.podcasts?[indexPath.row], let artwork = podcast.artwork {
             cell.podcastImage.image = UIImage(data: artwork)
         }

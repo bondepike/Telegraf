@@ -36,20 +36,27 @@ class PodcastController: UITableViewController, PodcastHeaderViewDelegate {
         return view
     }()
     
+    var eps: Episodes?
+    
     //MARK:- Init
     override func viewDidLoad() {
         super.viewDidLoad()
         
         self.navigationController?.setNavigationBarHidden(false, animated: false) // BUG FIX: navigation bar forsvinner
-        
-        tableView.register(EpisodesCell.self, forCellReuseIdentifier: "cellId")
         tableView.tableFooterView = UIView()
         tableView.contentInset.bottom = 64
         
+        guard let podcast = podcast else { return }
+        Episodes.shared.set(podcast: podcast)
+        //eps = Episodes(podcast: self.podcast!)
+
         setupHeaderView()
-        segmentedControllerUpdatedIndex(index: self.index)
+        //segmentedControllerUpdatedIndex(index: self.index)
     }
     
+    deinit {
+        print("Podcasts controller deinit")
+    }
 
     
     //MARK:- EpisodesHeaderDelegate
@@ -62,29 +69,22 @@ class PodcastController: UITableViewController, PodcastHeaderViewDelegate {
     
     func didTapSettings() {
         let podcastSettings = UIAlertController(title: "Settings", message: "Only this podcast will be affected", preferredStyle: .actionSheet)
-            
+
         podcastSettings.addAction(UIAlertAction(title: "Delete", style: .destructive, handler: { [unowned self] (_) in
             guard let podcast = self.podcast else { return }
             CoreDataManager.shared.deletePodcast(podcast: podcast, completionHandler: { [unowned self] in
                 self.subscriptionChangesDelegate?.deletedPodcast()
                 self.navigationController?.popViewController(animated: true)
-                self.minimizePlayerView()
             })
         }))
-        
-        podcastSettings.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { [unowned self] _ in
-            self.minimizePlayerView()
-        }))
-        
-        let navigationController = UIApplication.shared.keyWindow?.rootViewController as? UINavigationController
-        let homeController = navigationController?.viewControllers[0] as? SubscriptionsController
-        homeController?.dissapearPlayerView()
-        
+
+        podcastSettings.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+
         present(podcastSettings, animated: true, completion: nil)
     }
     
     func segmentedControllerUpdatedIndex(index: Int) {
-        self.index = index
+        //self.index = index
         switch index {
         case 0:
             fetchLocalEpisodes()
@@ -105,26 +105,22 @@ class PodcastController: UITableViewController, PodcastHeaderViewDelegate {
     
     //MARK:- Helper Functions
     fileprivate func fetchLocalEpisodes() {
-        sortLocalEpisodes()
+        localEpisodes = sortLocalEpisodes()
         DispatchQueue.main.async {
             self.tableView.reloadData()
         }
     }
     
-    fileprivate func minimizePlayerView() {
-        let navigationController = UIApplication.shared.keyWindow?.rootViewController as? UINavigationController
-        let homeController = navigationController?.viewControllers[0] as? SubscriptionsController
-        guard homeController?.playerView.episode != nil else { return }
-        homeController?.minimizePlayerView()
-    }
     
-    func sortLocalEpisodes() {
+    func sortLocalEpisodes() -> [Episode]? {
         var fetchedLocalEpisodes = podcast?.episodes?.allObjects as? [Episode]
         fetchedLocalEpisodes = fetchedLocalEpisodes?.sorted(by: { (ep1, ep2) -> Bool in
             guard let ep1 = ep1.releaseDate, let ep2 = ep2.releaseDate else { return false }
             return ep1 > ep2
         })
-        self.localEpisodes = fetchedLocalEpisodes
+        return fetchedLocalEpisodes
+        
+        //self.localEpisodes = fetchedLocalEpisodes
     }
     
     //MARK:- Setup

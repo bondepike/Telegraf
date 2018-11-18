@@ -24,7 +24,7 @@ class SubscriptionsController: UICollectionViewController, UICollectionViewDeleg
     
     func segmentedControllerUpdatedIndex(index: Int) {}
     
-    let playerView = PlayerViewController()
+   // let playerView = PlayerViewController()
 
     //MARK:- Data
     var podcasts: [Podcast]? {
@@ -76,10 +76,7 @@ class SubscriptionsController: UICollectionViewController, UICollectionViewDeleg
         navigationController?.pushViewController(searchController, animated: true)
     }
     
-    @objc fileprivate func presentHistoryController() {
-        let historyController = HistoryController()
-        navigationController?.pushViewController(historyController, animated: true)
-    }
+
     
     fileprivate func setupUI() {
         title = "Podcasts"

@@ -101,104 +101,84 @@ class EpisodesCell: UITableViewCell {
         return shapeLayer
     }()
     
-    var internetEpisode: EpisodeModel? {
-        didSet {
-            setupInternetEpisode()
-        }
-    }
+    var podcast: Podcast?
     
-    var podcast: Podcast? {
+    var episodeDataSource: EpisodeDataSource? {
         didSet {
-            guard let name = localEpisode?.name else { return }
-            podcast?.history?.allObjects.forEach({ (episode) in
-                if let episode = episode as? History {
-                    if name == episode.name ?? "" {
-                        doneLabel.isHidden = false
-                    }
-                }
-            })
-        }
-    }
-    
-    var localEpisode: Episode? {
-        didSet {
-            setupProgress()
-            setupEpisodeLabels()
+            print("I am ", episodeDataSource?.name ?? "")
+            setupLabels()
         }
     }
     
     var episodeCellDelegate: EpisoceCellDelegate?
     
-    func setupInternetEpisode() {
-        guard let internetEpisode = internetEpisode else { return }
+    
+    func setupLabels() {
+        episodeSubtitle.text = episodeDataSource?.subtitle
+        episodeTitle.text = episodeDataSource?.name
         
-        
-        
-        if let date = internetEpisode.pubDate {
-            let formatter = DateFormatter()
-            formatter.dateStyle = .medium
-            let dateString = formatter.string(from: date)
-            releaseDateLabel.text = dateString
-        }
-
-        
-        episodeSubtitle.text = internetEpisode.subtitle
-        episodeTitle.text = internetEpisode.name
-        elapsedTimeProgressShapeLayer.isHidden = true
     }
     
-    func setupEpisodeLabels() {
-        guard let localEpisode = localEpisode else { return }
-        episodeTitle.text = localEpisode.name
-        episodeSubtitle.text = localEpisode.subtitle
-        //guard localEpisode.downloadProgress == 1 else { return }
-        episodeTitle.textColor = UIColor.kindaBlack
-        episodeSubtitle.textColor = UIColor.kindaBlack
-    }
-    
-    func setupProgress() {
-        guard let localEpisode = localEpisode else { return }
-        if localEpisode.downloadProgress < 1 {
-            isUserInteractionEnabled = false
-            let percentage = Int(localEpisode.downloadProgress*100)
-            timeRemainingLabel.text = "\(percentage)%"
-            DispatchQueue.main.async {
-                self.downloadProgressShapeLayer.strokeEnd = CGFloat(localEpisode.downloadProgress)
-            }
-        } else {
-            updateRemainingStatus()
-        }
-    }
+//
+//    func setupInternetEpisode() {
+//        guard let internetEpisode = internetEpisode else { return }
+//
+//
+//
+//        if let date = internetEpisode.pubDate {
+//            let formatter = DateFormatter()
+//            formatter.dateStyle = .medium
+//            let dateString = formatter.string(from: date)
+//            releaseDateLabel.text = dateString
+//        }
+//
+//
+//        episodeSubtitle.text = internetEpisode.subtitle
+//        episodeTitle.text = internetEpisode.name
+//        elapsedTimeProgressShapeLayer.isHidden = true
+//    }
+//
+//    func setupEpisodeLabels() {
+//        guard let localEpisode = localEpisode else { return }
+//        episodeTitle.text = localEpisode.name
+//        episodeSubtitle.text = localEpisode.subtitle
+//        //guard localEpisode.downloadProgress == 1 else { return }
+//        episodeTitle.textColor = UIColor.kindaBlack
+//        episodeSubtitle.textColor = UIColor.kindaBlack
+//    }
+//
+//    func setupProgress() {
+//        guard let localEpisode = localEpisode else { return }
+//        if localEpisode.downloadProgress < 1 {
+//            isUserInteractionEnabled = false
+//            let percentage = Int(localEpisode.downloadProgress*100)
+//            timeRemainingLabel.text = "\(percentage)%"
+//            DispatchQueue.main.async {
+//                self.downloadProgressShapeLayer.strokeEnd = CGFloat(localEpisode.downloadProgress)
+//            }
+//        } else {
+//            updateRemainingStatus()
+//        }
+//    }
     
 
     fileprivate func setupObservers() {
-        NotificationCenter.default.addObserver(self, selector: #selector(updateRemainingStatus), name: .elapsedTimeProgress, object: nil)
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(handleDownloadProgress), name: .handleDownloadProgress, object: nil)
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(handleDownloadStarted), name: .handleDownloadStarted, object: nil)
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(handleDownloadFinished), name: .handleDownloadFinished, object: nil)
+//        NotificationCenter.default.addObserver(self, selector: #selector(updateRemainingStatus), name: .elapsedTimeProgress, object: nil)
+//
+//        NotificationCenter.default.addObserver(self, selector: #selector(handleDownloadProgress), name: .handleDownloadProgress, object: nil)
+//
+//        NotificationCenter.default.addObserver(self, selector: #selector(handleDownloadStarted), name: .handleDownloadStarted, object: nil)
+//
+//        NotificationCenter.default.addObserver(self, selector: #selector(handleDownloadFinished), name: .handleDownloadFinished, object: nil)
     }
     
     
     //MARK:- Init, Layout
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        updateRemainingStatus()
+        //updateRemainingStatus()
         setupObservers()
         setupLayout()
-        setupLongPress()
-    }
-
-    fileprivate func setupLongPress() {
-        let longPress = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress))
-        addGestureRecognizer(longPress)
-    }
-    
-    @objc fileprivate func handleLongPress(gesture: UILongPressGestureRecognizer) {
-        guard gesture.state == .began else { return }
-        episodeCellDelegate?.didLongPress(episode: localEpisode, internetEpisode: internetEpisode)
     }
     
     fileprivate func setupLayout() {

@@ -9,8 +9,6 @@
 import Foundation
 
 extension Notification.Name {
-    static let downloadProgress = NSNotification.Name("downloadProgress")
-    static let downloadStarted = NSNotification.Name("downloadStarted")
     static let elapsedTimeProgress = NSNotification.Name("elapsedTimeProgress")
     static let handleDownloadProgress = NSNotification.Name("handleDownloadProgress")
     static let handleDownloadStarted = NSNotification.Name("handleDownloadStarted")
