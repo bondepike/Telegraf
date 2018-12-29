@@ -77,13 +77,11 @@ extension MasterController {
         UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.7, options: .curveEaseInOut, animations: { [unowned self] in
             
             switch UIDevice.screenType {
-            case .iphoneX:
-                print("I am iPhone X")
+            case .iphoneX, .iphoneXMax:
                 self.homeController.view.frame = CGRect(x: 0, y: 0, width: screenSize.width, height: screenSize.height - 100)
                 self.homeController.view.layer.cornerRadius = 25
                 break
             default:
-                print("I am iPhone 6-8")
                 self.homeController.view.frame = CGRect(x: 0, y: 0, width: screenSize.width, height: screenSize.height - 64)
                 break
             }

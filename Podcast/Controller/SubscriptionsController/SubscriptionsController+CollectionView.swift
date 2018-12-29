@@ -24,7 +24,7 @@ extension SubscriptionsController {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let width = view.frame.width/3
         
-        return CGSize(width: width, height: width)
+        return CGSize(width: width, height: width)//CGSize(width: width, height: width + 40)
     }
     
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -36,10 +36,9 @@ extension SubscriptionsController {
     }
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cellId", for: indexPath) as! FavoritesCell
-        if let podcast = self.podcasts?[indexPath.row], let artwork = podcast.artwork {
-            cell.podcastImage.image = UIImage(data: artwork)
-        }
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cellId", for: indexPath) as! PodcastCell
+        cell.podcast = podcasts?[indexPath.row]
+
         return cell
     }
     
@@ -48,7 +47,10 @@ extension SubscriptionsController {
         let podcastController = PodcastController()
         let image = UIImage(data: imageData)
         podcastController.image = image
-        podcastController.podcast = podcast
+        
+        Podcasts.shared.set(podcast: podcast)
+        
+        //podcastController.podcast = podcast
         podcastController.subscriptionChangesDelegate = self
         
         if podcast.episodes?.allObjects.count == 0 {

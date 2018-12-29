@@ -34,109 +34,61 @@ extension PodcastController {
     
     //MARK:- Rows
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if refreshing {
+            return 0
+        }
         return Episodes.shared.episodes.count
     }
     
-//    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-//        return 200
-//    }
+    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 110
+    }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = EpisodesCell()
-        cell.episodeCellDelegate = self
+        let cell = EpisodeCell()
+        //cell.podcast = podcast
         cell.episodeDataSource = Episodes.shared.episodes[indexPath.row]
         
         return cell
     }
-//
-//    //MARK:- Actions
-//    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-//        let cell = tableView.cellForRow(at: indexPath) as? EpisodesCell
-//        guard let _ = cell?.localEpisode else { return false }
-//        return true
-//    }
-//
-//    override func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
-//        let cell = tableView.cellForRow(at: indexPath) as? EpisodesCell
-//        guard let episode = cell?.localEpisode else { return nil }
-//
-//        let removeAction = UITableViewRowAction(style: .destructive, title: "Delete") { [unowned self] (_, indexPath) in
-//            CoreDataManager.shared.deleteDownloadedEpisode(episode: episode, completionHandler: {
-//                if self.index == 0 {
-//                    self.localEpisodes?.remove(at: indexPath.row)
-//                    tableView.deleteRows(at: [indexPath], with: .left)
-//                } else {
-//                    /*
-//                        Finer index til episoden i både localEpisodes og internetEpisodes array
-//                        og sletter de før den oppdaterer tableView med delte animation
-//                    */
-//                    guard let index = self.localEpisodes?.index(of: episode) else { return }
-//                    self.localEpisodes?.remove(at: index)
-//
-//                    guard let newIndex = self.internetEpisodes?.index(where: { (episodeModel) -> Bool in
-//                        return cell?.internetEpisode?.name == episodeModel.name
-//                    }) else { return }
-//
-//                    self.internetEpisodes?.remove(at: newIndex)
-//
-//                    tableView.deleteRows(at: [indexPath], with: .left)
-//                }
-//
-//            })
-//            self.sortLocalEpisodes()
-//        }
-//        return [ removeAction ]
-//    }
-//    
-//    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-//        tableView.cellForRow(at: indexPath)?.isSelected = false
-//
-//        if index == 0 {
-//            let pointer = tableView.cellForRow(at: indexPath) as? EpisodesCell
-//            if let episode = pointer?.localEpisode {
-//                NotificationCenter.default.post(name: .playNewEpisode, object: episode)
-//            }
-//        }
-//        
-//        if index == 1 {
-//            let pointer = tableView.cellForRow(at: indexPath) as? EpisodesCell
-//            pointer?.doneLabel.isHidden = true
-//            if let episode = pointer?.localEpisode {
-//                NotificationCenter.default.post(name: .playNewEpisode, object: episode)
-//            } else {
-//                guard let podcast = self.podcast else { return }
-//                guard let episodeModel = self.internetEpisodes?[indexPath.row] else { return }
-//                guard let episodeUrl = episodeModel.episodeUrl else { return }
-//               
-//                guard let lastPathComponent = URL(string: episodeUrl)?.lastPathComponent else { return }
-//                let cell = tableView.cellForRow(at: indexPath) as? EpisodesCell
-//                cell?.isUserInteractionEnabled = false
-//                
-//                CoreDataManager.shared.saveNewLocalEpisode(podcast: podcast, episodeModel: episodeModel, lastPathComponent: lastPathComponent, completionHandler: { episode in
-//                                        
-//                    cell?.localEpisode = episode
-//                    
-//                    NotificationCenter.default.post(name: .handleDownloadStarted, object: nil, userInfo: ["title":episode.name ?? ""])
-//                    
-//                    NetworkAPI.shared.downloadEpisode(episode: episode, episodeModel: episodeModel, completionHandler: {
-//                        
-//                        guard var trueFileUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return }
-//                        trueFileUrl.appendPathComponent(episode.lastLocalPathCompoenent ?? "")
-//                        
-//                        let asset = AVURLAsset(url: trueFileUrl)
-//                        let assetDuration = asset.duration
-//                        let assetDurationSeconds = CMTimeGetSeconds(assetDuration)
-//                        
-//                        CoreDataManager.shared.updateEpisodeLength(episode: episode, length: assetDurationSeconds)
-//                        NotificationCenter.default.post(name: .handleDownloadFinished, object: nil, userInfo: ["title":episode.name ?? ""])
-//                        self.sortLocalEpisodes()
-//                    })
-//                })
-//            }
-//        }
-//        
-//    }
     
+    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        let cell = tableView.cellForRow(at: indexPath) as? EpisodeCell
+        return cell?.episodeDataSource?.episode != nil
+    }
     
+    override func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
+        
+        guard let episode = Episodes.shared.episodes[indexPath.row].episode else { return nil }
+        guard let podcast = Podcasts.shared.current?.podcast else { return nil }
+        
+        let removeAction = UITableViewRowAction(style: .destructive, title: "delete") { (_, indexPath) in
+            CoreDataManager.shared.saveToHistory(podcast, episode: episode)
+            CoreDataManager.shared.deleteDownloadedEpisode(episode: episode, completionHandler: {
+                Episodes.shared.episodes.remove(at: indexPath.row)
+                tableView.deleteRows(at: [indexPath], with: .automatic)
+            })
+        }
+        
+        return [removeAction]
+    }
+    
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard let cell = tableView.cellForRow(at: indexPath) as? EpisodeCell else { return }
+        
+        if let episode = cell.episodeDataSource?.episode {
+            NotificationCenter.default.post(name: .playNewEpisode, object: episode)
+        } else if let episodeDataSource = cell.episodeDataSource {
+            downloadEpisode(episodeDataSource: episodeDataSource)
+            tableView.reloadRows(at: [indexPath], with: .fade)
+        }
+        
+        tableView.deselectRow(at: indexPath, animated: true)
+    }
+    
+    fileprivate func downloadEpisode(episodeDataSource: EpisodeDataSource) {
+        guard let podcast = Podcasts.shared.current?.podcast else { return }
+        Episodes.shared.new(episode: episodeDataSource, for: podcast)
+    }
 
 }

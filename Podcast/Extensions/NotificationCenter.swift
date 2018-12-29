@@ -9,11 +9,19 @@
 import Foundation
 
 extension Notification.Name {
-    static let elapsedTimeProgress = NSNotification.Name("elapsedTimeProgress")
-    static let handleDownloadProgress = NSNotification.Name("handleDownloadProgress")
-    static let handleDownloadStarted = NSNotification.Name("handleDownloadStarted")
     
+    // Oppdaterer gjenstående tid
+    static let elapsedTimeProgress = NSNotification.Name("elapsedTimeProgress")
+    
+    // Oppdaterer nedlasting framgang
+    static let handleDownloadProgress = NSNotification.Name("handleDownloadProgress")
+    
+    // Oppdaterer nedlasting start og ferdig
+    static let handleDownloadStarted = NSNotification.Name("handleDownloadStarted")
     static let handleDownloadFinished = Notification.Name("handleDownloadFinished")
     
+    // Spiller av ny episode
     static let playNewEpisode = Notification.Name(rawValue: "playNewEpisode")
+    
+    static let reloadPodcasts = Notification.Name(rawValue: "reloadPodcasts")
 }

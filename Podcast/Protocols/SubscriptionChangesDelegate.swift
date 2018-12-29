@@ -8,7 +8,7 @@
 
 import Foundation
 
-@objc protocol  SubscriptionChangesDelegate: class {
+@objc protocol SubscriptionChangesDelegate: class {
     
     ///Updates UI to represent state where a new podcast has beed **added** to CoreData
     func subscribedToNew(podcast: Podcast?)

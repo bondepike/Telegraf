@@ -86,10 +86,10 @@ class ModalPlayer: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .black//UIColor(red:0.06, green:0.13, blue:0.15, alpha:1.0)
         setupAutoLayout()
         setupObservers()
         setupGestures()
+        setupBackgroundColor()
     }
 }
 
@@ -202,6 +202,7 @@ extension ModalPlayer {
             
             //TODO: Bytte på denne API-en
             CoreDataManager.shared.updateEpisodeTimes(episode: currentEpisode, elapsedTime: elapsedSeconds, episodeLength: durationSeconds, completionHandler: { (_) in
+                NotificationCenter.default.post(name: .elapsedTimeProgress, object: nil)
             })
         }
     }
@@ -225,8 +226,11 @@ extension ModalPlayer {
 //        fileUrl.appendPathComponent(podcastName)
         
         fileUrl.appendPathComponent(episode.lastLocalPathCompoenent ?? "")
+        chapters(url: fileUrl)
         
         let playerItem = AVPlayerItem(url: fileUrl)
+        
+        
         player.replaceCurrentItem(with: playerItem)
         
         currentEpisode = episode
@@ -239,6 +243,23 @@ extension ModalPlayer {
         setupEpisodeMetadata(episode: episode)
         setupMediaPlayerNowPlayingInfo(for: episode)
         setupRemoteControll()
+    }
+    
+    fileprivate func chapters(url: URL) {
+        let data = try NSData(contentsOf: url)
+        
+        guard let length = data?.length else { return }
+        
+        let count = length / Int(UInt32.max)
+        
+        var arr = [UInt32](repeating: 0, count: length)
+        data?.getBytes(&arr, length: length)
+        
+        print(Int(arr[0].bigEndian))
+        print(arr[1])
+        print(arr[2])
+        print(arr[15])
+
     }
     
     fileprivate func setupMediaPlayerNowPlayingInfo(for episode: Episode) {
@@ -344,7 +365,6 @@ extension ModalPlayer {
         commandCenter.skipForwardCommand.preferredIntervals = [30]
         commandCenter.skipForwardCommand.addTarget { [unowned self] (_) -> MPRemoteCommandHandlerStatus in
             self.handleForward()
-
             return .success
         }
         
@@ -352,23 +372,31 @@ extension ModalPlayer {
         commandCenter.skipBackwardCommand.preferredIntervals = [10]
         commandCenter.skipBackwardCommand.addTarget { [unowned self] (_) -> MPRemoteCommandHandlerStatus in
             self.handleRewind()
-
             return .success
         }
         
         commandCenter.togglePlayPauseCommand.isEnabled = true
         commandCenter.togglePlayPauseCommand.addTarget { [unowned self] (_) -> MPRemoteCommandHandlerStatus in
             self.handlePlayPause()
-            
             return .success
         }
+    
         
     }
     
 }
 
-//MARK:- Auto Layout
+//MARK:- Layout
 extension ModalPlayer {
+    func setupBackgroundColor() {
+        switch UIDevice.screenType {
+        case .iphoneXR, .iphoneX, .iphoneXMax:
+            view.backgroundColor = .black
+            break
+        default: view.backgroundColor = .kindaBlack
+        }
+    }
+    
     func setupAutoLayout() {
         setupPlayControll()
         setupArtwork()

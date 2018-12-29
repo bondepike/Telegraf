@@ -49,42 +49,42 @@ class Theme {
     let cornerRadius: CGFloat = 12
     let alpha: CGFloat = 0.4
     
-    /** Avstanden fra podcast image til toppen av scroll view */
-    let podcastImageTopContraintConstant: CGFloat = {
-        switch UIDevice.screenType {
-        case .iphone4:
-            return 14
-        case .iphone5:
-            return 16
-        case .iphone6:
-            return 24
-        case .iphone6Pluss:
-            return 32
-        case .iphoneX:
-            return 36
-        case .unknown:
-            return 14
-        }
-        
-    }()
+//    /** Avstanden fra podcast image til toppen av scroll view */
+//    let podcastImageTopContraintConstant: CGFloat = {
+//        switch UIDevice.screenType {
+//        case .iphone4:
+//            return 14
+//        case .iphone5:
+//            return 16
+//        case .iphone6:
+//            return 24
+//        case .iphone6Pluss:
+//            return 32
+//        case .iphoneX:
+//            return 36
+//        case .unknown:
+//            return 14
+//        }
+//
+//    }()
     
     //MARK:- Fonts
     let boldFont = UIFont(name: "IBMPlexSans-Bold", size: 14)
     let regularFont = UIFont(name: "IBMPlexSans", size: 14)
     
     
-    //MARK:- App States
-    var downloadStatus = [String:Double]()
-    
-    init() {
-        NotificationCenter.default.addObserver(self, selector: #selector(handleDownloadProgress), name: .handleDownloadProgress, object: nil)
-    }
-    
-    @objc func handleDownloadProgress(notification: Notification) {
-        guard let userInfo = notification.userInfo else { return }
-        guard let episodeName = userInfo["title"] as? String else { return }
-        guard let downloadProgress = userInfo["progress"] as? Double else { return }
-        downloadStatus[episodeName] = downloadProgress
-    }
-    
+//    //MARK:- App States
+//    var downloadStatus = [String:Double]()
+//    
+//    init() {
+//        NotificationCenter.default.addObserver(self, selector: #selector(handleDownloadProgress), name: .handleDownloadProgress, object: nil)
+//    }
+//    
+//    @objc func handleDownloadProgress(notification: Notification) {
+//        guard let userInfo = notification.userInfo else { return }
+//        guard let episodeName = userInfo["title"] as? String else { return }
+//        guard let downloadProgress = userInfo["progress"] as? Double else { return }
+//        downloadStatus[episodeName] = downloadProgress
+//    }
+//    
 }

@@ -31,9 +31,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return true
     }
     
-    fileprivate func setupJWT() {
-        
-        
+    fileprivate func setupJWT() {        
         if let jwt = UserDefaults.standard.string(forKey: "jwt") {
             print("JWT: \(jwt)")
             
@@ -47,8 +45,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     //self.saveToICloud(jwt)
                 }
             }
-            
-            
             return
         }
         
@@ -57,9 +53,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             UserDefaults.standard.set(jwt, forKey: "jwt")
             self.saveToICloud(jwt)
         }
-        
-        //let database = CKDatabase
-        
     }
     
     func saveToICloud(_ jwt: String) {
@@ -77,7 +70,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func setupAppearance() {
-        UINavigationBar.appearance().tintColor = .applePink
+        UINavigationBar.appearance().tintColor = UIColor(red:0.57, green:0.60, blue:0.64, alpha:1.00)//.applePink
         UINavigationBar.appearance().backgroundColor = .white
 
         //UINavigationBar.appearance().isTranslucent = false
@@ -91,7 +84,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         UISearchBar.appearance().backgroundImage = UIImage()
         UISearchBar.appearance().layer.borderColor = UIColor.white.cgColor
 
-        //UITabBar.appearance().isTranslucent = false
+        UITabBar.appearance().isTranslucent = false
         UITabBar.appearance().tintColor = .applePink//.ibmBlue
         
         UIBarButtonItem.appearance().setTitleTextAttributes([

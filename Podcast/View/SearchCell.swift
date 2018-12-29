@@ -7,6 +7,7 @@
 //
 
 import UIKit
+
 protocol SearchCellDelegate {
     func updateCell(with indexPath: IndexPath)
 }
@@ -96,14 +97,12 @@ class SearchCell: UITableViewCell {
             podcastImageView.widthAnchor.constraint(equalToConstant: 134)
             ].forEach { $0.isActive = true }
 
-        
         addSubview(podcastTitleLabel)
         [
             podcastTitleLabel.leftAnchor.constraint(equalTo: podcastImageView.rightAnchor, constant: 10),
             podcastTitleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 24),
             podcastTitleLabel.rightAnchor.constraint(equalTo: rightAnchor, constant: -10),
             ].forEach { $0.isActive = true }
-        
         
         addSubview(artistNameLabel)
         [

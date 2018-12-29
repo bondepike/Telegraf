@@ -8,25 +8,21 @@
 
 import UIKit
 
-protocol EpisoceCellDelegate {
-    func didLongPress(episode: Episode?, internetEpisode: EpisodeModel?)
-}
-
-class EpisodesCell: UITableViewCell {
+class EpisodeCell: UITableViewCell {
     
     let episodeTitle: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 1
         label.font = UIFont(name: "IBMPlexSans-Bold", size: 14)
-        label.textColor = .gray
+        label.textColor = .graySuit
         
         return label
     }()
     
     let episodeSubtitle: UILabel = {
         let label = UILabel()
-        label.textColor = .gray
+        label.textColor = .graySuit
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
         label.font = UIFont(name: "IBMPlexSans", size: 14)
@@ -38,7 +34,7 @@ class EpisodesCell: UITableViewCell {
     
     let timeRemainingLabel: UILabel = {
         let label = UILabel()
-        label.textColor = UIColor.gray
+        label.textColor = .graySuit
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont(name: "IBMPlexSans", size: 12)
         label.textAlignment = .center
@@ -48,7 +44,7 @@ class EpisodesCell: UITableViewCell {
     
     let doneLabel: UIImageView = {
         let iv = UIImageView(image: #imageLiteral(resourceName: "done"))
-        iv.tintColor = .lightGray
+        iv.tintColor = .graySuit
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.isHidden = true
         
@@ -66,7 +62,7 @@ class EpisodesCell: UITableViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont(name: "IBMPlexSans-Bold", size: 12)
-        label.textColor = .lightGray
+        label.textColor = .graySuit
         return label
     }()
     
@@ -76,7 +72,7 @@ class EpisodesCell: UITableViewCell {
         let circularPath = UIBezierPath(arcCenter: .zero, radius: 16, startAngle: 0, endAngle: 2 * CGFloat.pi, clockwise: true)
         
         shapeLayer.path = circularPath.cgPath
-        shapeLayer.strokeColor = UIColor.lightGray.cgColor
+        shapeLayer.strokeColor = UIColor.graySuit.cgColor
         shapeLayer.lineWidth = 3
         shapeLayer.fillColor = UIColor.clear.cgColor
         shapeLayer.lineCap = kCALineCapRound
@@ -91,7 +87,7 @@ class EpisodesCell: UITableViewCell {
         let circularPath = UIBezierPath(arcCenter: .zero, radius: 16, startAngle: 0, endAngle: 2 * CGFloat.pi, clockwise: false)
 
         shapeLayer.path = circularPath.cgPath
-        shapeLayer.strokeColor = UIColor.lightGray.cgColor
+        shapeLayer.strokeColor = UIColor.graySuit.cgColor
         shapeLayer.lineWidth = 3
         shapeLayer.fillColor = UIColor.clear.cgColor
         shapeLayer.lineCap = kCALineCapRound
@@ -105,71 +101,80 @@ class EpisodesCell: UITableViewCell {
     
     var episodeDataSource: EpisodeDataSource? {
         didSet {
-            print("I am ", episodeDataSource?.name ?? "")
             setupLabels()
+            if let _ = episodeDataSource?.episode {
+                episodeTitle.textColor = .kindaBlack
+                episodeSubtitle.textColor = .kindaBlack
+                setupProgress()
+            } else {
+                //guard let podcast = podcast else { return }
+                //guard let history = podcast.history?.allObjects as? [History] else { return }
+                if episodeDataSource?.inHistory ?? false {
+                    doneLabel.isHidden = false
+                }
+            }
         }
     }
     
-    var episodeCellDelegate: EpisoceCellDelegate?
     
-    
-    func setupLabels() {
+    fileprivate func setupLabels() {
         episodeSubtitle.text = episodeDataSource?.subtitle
         episodeTitle.text = episodeDataSource?.name
         
+        
+        setupDateLabel()
     }
     
-//
-//    func setupInternetEpisode() {
-//        guard let internetEpisode = internetEpisode else { return }
-//
-//
-//
-//        if let date = internetEpisode.pubDate {
-//            let formatter = DateFormatter()
-//            formatter.dateStyle = .medium
-//            let dateString = formatter.string(from: date)
-//            releaseDateLabel.text = dateString
-//        }
-//
-//
-//        episodeSubtitle.text = internetEpisode.subtitle
-//        episodeTitle.text = internetEpisode.name
-//        elapsedTimeProgressShapeLayer.isHidden = true
-//    }
-//
-//    func setupEpisodeLabels() {
-//        guard let localEpisode = localEpisode else { return }
-//        episodeTitle.text = localEpisode.name
-//        episodeSubtitle.text = localEpisode.subtitle
-//        //guard localEpisode.downloadProgress == 1 else { return }
-//        episodeTitle.textColor = UIColor.kindaBlack
-//        episodeSubtitle.textColor = UIColor.kindaBlack
-//    }
-//
-//    func setupProgress() {
-//        guard let localEpisode = localEpisode else { return }
-//        if localEpisode.downloadProgress < 1 {
-//            isUserInteractionEnabled = false
-//            let percentage = Int(localEpisode.downloadProgress*100)
-//            timeRemainingLabel.text = "\(percentage)%"
-//            DispatchQueue.main.async {
-//                self.downloadProgressShapeLayer.strokeEnd = CGFloat(localEpisode.downloadProgress)
-//            }
-//        } else {
-//            updateRemainingStatus()
-//        }
-//    }
+    fileprivate func setupDateLabel() {
+        guard let date = episodeDataSource?.releaseDate else { return }
+        
+        let calendar = Calendar(identifier: .iso8601)
+        
+        let formatter = DateFormatter()
+
+        let hoursSinceRelease = Date().timeIntervalSince(date) / 3600
+        
+        if hoursSinceRelease < 24 {
+            releaseDateLabel.text = "Today"
+            return
+        } else if hoursSinceRelease < 48 {
+            releaseDateLabel.text = "Yesterday"
+            return
+        } else if hoursSinceRelease < 168 {
+            formatter.dateFormat = "EEEE"
+            formatter.locale = Locale(identifier: "en_US")
+            releaseDateLabel.text = "\(formatter.string(from: date))"
+            return
+        }
+        
+        formatter.dateFormat = "dd MMM YYYY"
+        
+        releaseDateLabel.text = "\(formatter.string(from: date))"
+    }
+    
+    func setupProgress() {
+        guard let localEpisode = episodeDataSource?.episode else { return }
+        if localEpisode.downloadProgress < 1 {
+            isUserInteractionEnabled = false
+            let percentage = Int(localEpisode.downloadProgress*100)
+            timeRemainingLabel.text = "\(percentage)%"
+            DispatchQueue.main.async {
+                self.downloadProgressShapeLayer.strokeEnd = CGFloat(localEpisode.downloadProgress)
+            }
+        } else {
+            updateRemainingStatus()
+        }
+    }
     
 
     fileprivate func setupObservers() {
-//        NotificationCenter.default.addObserver(self, selector: #selector(updateRemainingStatus), name: .elapsedTimeProgress, object: nil)
-//
-//        NotificationCenter.default.addObserver(self, selector: #selector(handleDownloadProgress), name: .handleDownloadProgress, object: nil)
-//
-//        NotificationCenter.default.addObserver(self, selector: #selector(handleDownloadStarted), name: .handleDownloadStarted, object: nil)
-//
-//        NotificationCenter.default.addObserver(self, selector: #selector(handleDownloadFinished), name: .handleDownloadFinished, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(updateRemainingStatus), name: .elapsedTimeProgress, object: nil)
+
+        NotificationCenter.default.addObserver(self, selector: #selector(handleDownloadProgress), name: .handleDownloadProgress, object: nil)
+
+        NotificationCenter.default.addObserver(self, selector: #selector(handleDownloadStarted), name: .handleDownloadStarted, object: nil)
+
+        NotificationCenter.default.addObserver(self, selector: #selector(handleDownloadFinished), name: .handleDownloadFinished, object: nil)
     }
     
     
@@ -187,14 +192,15 @@ class EpisodesCell: UITableViewCell {
             episodeTitle.leftAnchor.constraint(equalTo: leftAnchor, constant: 10),
             episodeTitle.rightAnchor.constraint(equalTo: rightAnchor, constant: -10),
             episodeTitle.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            //episodeTitle.heightAnchor.constraint(equalToConstant: 20)
+            episodeTitle.heightAnchor.constraint(equalToConstant: 20)
             ].forEach { $0.isActive = true }
         
         addSubview(releaseDateLabel)
         [
+            releaseDateLabel.topAnchor.constraint(equalTo: episodeTitle.bottomAnchor, constant: 2),
             releaseDateLabel.leftAnchor.constraint(equalTo: episodeTitle.leftAnchor, constant: 10),
             releaseDateLabel.rightAnchor.constraint(equalTo: rightAnchor, constant: -10),
-            releaseDateLabel.topAnchor.constraint(equalTo: episodeTitle.bottomAnchor, constant: 2)
+            releaseDateLabel.heightAnchor.constraint(equalToConstant: 15)
             ].forEach { $0.isActive = true }
         
         addSubview(progressView)
@@ -203,7 +209,7 @@ class EpisodesCell: UITableViewCell {
             progressView.widthAnchor.constraint(equalToConstant: 33),
             progressView.heightAnchor.constraint(equalToConstant: 33),
             progressView.topAnchor.constraint(equalTo: releaseDateLabel.bottomAnchor, constant: 26),
-            progressView.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor, constant: -10)
+            //progressView.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor, constant: -10)
             ].forEach { $0.isActive = true }
         
         addSubview(doneLabel)
@@ -231,6 +237,7 @@ class EpisodesCell: UITableViewCell {
             episodeSubtitle.rightAnchor.constraint(equalTo: rightAnchor, constant: -15),
             episodeSubtitle.topAnchor.constraint(equalTo: releaseDateLabel.bottomAnchor, constant: 5),
             episodeSubtitle.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor, constant: -10)
+            //episodeSubtitle.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor, constant: -10)
             ].forEach { $0.isActive = true }
     }
     

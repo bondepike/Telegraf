@@ -11,59 +11,74 @@ import Foundation
 struct EpisodeDataSource {
     var name: String?
     var artist: String?
-    var subtitle: String?
+    var description: String?
     var episodeUrl: String?
     var artworkUrl: String?
     var releaseDate: Date?
     var length: Double?
-    var description: String?
+    var subtitle: String?
+    
+    var inHistory: Bool
+    
+    var episode: Episode?
 }
 
 class Episodes {
     
     var episodes = [EpisodeDataSource]()
     
-    fileprivate var internetEpisodes = [EpisodeDataSource]()
-    
     static let shared = Episodes()
     
     init() {
         setupObservers()
     }
-    
-    deinit {
-        print(":((((((((((((((")
-    }
 
 }
 
 extension Episodes {
+    func new(episode: EpisodeDataSource, for podcast: Podcast) {
+        let localEpisode =  CoreDataManager.shared.saveNewLocalEpisode(podcast: podcast, episode: episode)
+        
+        let index = episodes.firstIndex { (eds) -> Bool in
+            return eds.name == localEpisode.name
+        }
+        
+        if let index = index {
+            episodes[index].episode = localEpisode
+        }
+        
+        NetworkAPI.shared.downloadEpisode(episode: localEpisode, episodeModel: episode) {
+        }
+    }
+}
+
+extension Episodes {
     func set(podcast: Podcast) {
-        guard let local = podcast.episodes?.allObjects as? [Episode] else { return }
+        episodes = [EpisodeDataSource]()
+        guard var local = podcast.episodes?.allObjects as? [Episode] else { return }
+        
+        local.sort { (ep1, ep2) -> Bool in
+            guard let rd1 = ep1.releaseDate, let rd2 = ep2.releaseDate else { return false}
+            return rd1 > rd2
+        }
         
         local.forEach { (ep) in
-            episodes.append(EpisodeDataSource(name: ep.name, artist: ep.artist, subtitle: ep.subtitle, episodeUrl: ep.internetEpisodeURL, artworkUrl: ep.artwork, releaseDate: ep.releaseDate, length: ep.timeLength, description: ep.description))
+            episodes.append(EpisodeDataSource(name: ep.name, artist: ep.artist, description: ep.subtitle, episodeUrl: ep.internetEpisodeURL, artworkUrl: ep.artwork, releaseDate: ep.releaseDate, length: ep.timeLength, subtitle: ep.subtitle, inHistory: false, episode: ep))
         }
     }
     
     func set(url: URL, completionHandler: @escaping () -> ()) {
-        NetworkAPI.shared.fetchEpisodesFeed(feedURL: url) { (feed) in
-            var ie = [EpisodeDataSource]()
+        Parser().parse(url: url) { (episodes) in
+            var episodes = episodes
             
-            feed.items?.forEach({ (item) in
-                
-                let episode = EpisodeDataSource(name: item.title,
-                                                artist: item.author,
-                                                subtitle: item.iTunes?.iTunesSubtitle ?? item.iTunes?.iTunesSummary,
-                                                episodeUrl: item.enclosure?.attributes?.url,
-                                                artworkUrl: item.iTunes?.iTunesImage?.attributes?.href,
-                                                releaseDate: item.pubDate,
-                                                length: Double(item.enclosure?.attributes?.length ?? 0),
-                                                description: item.description)
-                ie.append(episode)
-            })
+            for i in 0 ..< episodes.count {
+                let local = self.episodes.first(where: { (ep) -> Bool in
+                    return ep.name == episodes[i].name
+                })
+                episodes[i].episode = local?.episode
+            }
             
-            self.episodes = ie
+            self.episodes = episodes
             completionHandler()
         }
     }
@@ -76,9 +91,6 @@ extension Episodes {
     }
     
     @objc fileprivate func handleDownloadProgress() {
-        print("ieh")
+        
     }
-    
-    
-    
 }

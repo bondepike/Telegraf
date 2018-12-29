@@ -9,6 +9,7 @@
 import Foundation
 
 
+
 extension SearchController: SubscriptionChangesDelegate {
     //MARK:- SubscriptionChangesDelegate
     func subscribedToNew(podcast: Podcast?) {
@@ -20,4 +21,18 @@ extension SearchController: SubscriptionChangesDelegate {
             self.subscriptionChangesDelegate?.subscribedToNew(podcast: podcast)
         }
     }
+    
+    func setupObservers() {
+        NotificationCenter.default.addObserver(self, selector: #selector(didSubscribe), name: .reloadPodcasts, object: nil)
+    }
+    
+    @objc fileprivate func didSubscribe() {
+        CoreDataManager.shared.fetchAllPodcasts { podcasts in
+            self.podcasts = podcasts
+            DispatchQueue.main.async {
+                self.tableView.reloadData()
+            }
+        }
+    }
+    
 }

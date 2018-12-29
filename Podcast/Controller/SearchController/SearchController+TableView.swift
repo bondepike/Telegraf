@@ -13,17 +13,26 @@ extension SearchController {
     //MARK:- Table View stuff
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
-        guard let podcastModel = self.podcastModels?[indexPath.row] else { return }
-        let podcastController = setupPodcastController(with: podcastModel)
+
         
         // Er abonnent på Podcasten fra før
         let cell = tableView.cellForRow(at: indexPath) as? SearchCell
         if let podcast = cell?.podcast {
-            podcastController.podcast = podcast
-            podcastController.index = 0
-            podcastController.headerView.segmentedController.selectedSegmentIndex = 0
-            podcastController.headerView.settingsButton.isHidden = false
+            Podcasts.shared.set(podcast: podcast)
+//            podcastController.index = 0
+//            podcastController.headerView.segmentedController.selectedSegmentIndex = 0
+//            podcastController.headerView.settingsButton.isHidden = false
+        } else {
+            guard let podcastModel = self.podcastModels?[indexPath.row] else { return }
+            Podcasts.shared.set(podcast: podcastModel)
         }
+        
+        let podcastController = PodcastController()
+        podcastController.headerView.subscriptionChangesDelegate = self
+//        podcastController.index = 1
+//        podcastController.headerView.segmentedController.selectedSegmentIndex = 1
+//        podcastController.headerView.settingsButton.isHidden = true
+
         
         //podcastController.image = cell?.podcastImageView.image
         podcastController.headerView.podcastImageView.image = cell?.podcastImageView.image
@@ -31,14 +40,13 @@ extension SearchController {
     }
     
     func setupPodcastController(with podcastModel: PodcastModel) -> PodcastController {
+        Podcasts.shared.set(podcast: podcastModel)
+
         let podcastController = PodcastController()
         podcastController.headerView.subscriptionChangesDelegate = self
-        podcastController.podcastModel = podcastModel
-        
         podcastController.index = 1
         podcastController.headerView.segmentedController.selectedSegmentIndex = 1
-        podcastController.headerView.settingsButton.isHidden = true
-        
+
         return podcastController
     }
     
@@ -55,9 +63,7 @@ extension SearchController {
         guard let podcasts = podcastModels else { return 250 }
         return podcasts.count > 0 ? 0 : 250
     }
-    
-    
-    
+        
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = SearchCell()
         
