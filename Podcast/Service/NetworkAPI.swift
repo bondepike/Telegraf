@@ -17,7 +17,45 @@ class NetworkAPI: NSObject, URLSessionTaskDelegate, URLSessionDownloadDelegate {
     
 }
 
+struct FeedEpisode: Decodable {
+    var Podcast: String?
+    var Name: String?
+    var PubDate: String?
+}
+
 extension NetworkAPI {
+    func fetchFeed(completion: @escaping ([FeedEpisode]) -> ()){
+        guard let url = URL(string: "\(host)/feed") else { return }
+        //guard let url = URL(string: "http://localhost:8000/feed") else { return }
+        guard let jwt = UserDefaults.standard.string(forKey: "jwt") else { return }
+        let headers: HTTPHeaders = [
+            "Json-Web-Token": jwt,
+            ]
+        do {
+            let req = try URLRequest(url: url, method: .post, headers: headers)
+            
+            URLSession.shared.dataTask(with: req) { (data, response, err) in
+                if let err = err {
+                    print("Failed to make /feed request: ", err)
+                    return
+                }
+                
+                guard let data = data else { return }
+                do {
+                    let decoded = try JSONDecoder().decode([FeedEpisode].self, from: data)
+                    completion(decoded)
+                } catch let err {
+                    print(err)
+                }
+                guard let response = response as? HTTPURLResponse else { return }
+                }.resume()
+        } catch let err {
+            print(err)
+            return
+        }
+
+    }
+    
     func fetchPodcasts(with searchText: String, completionHandler: @escaping ([PodcastModel]?, Error?) -> ()) {
         
         let formattedSearchText = searchText.replacingOccurrences(of: " ", with: "+")

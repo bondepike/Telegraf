@@ -13,48 +13,17 @@ struct ParserFeed {
     var episodes: [EpisodeDataSource]?
 }
 
-
-
 class Parser: NSObject {
     
     var podcastTitle = ""
     var episodes = [EpisodeDataSource]()
-    
     var completionHandler: (([EpisodeDataSource]) -> ())?
     
-    var episodeUrl = "" {
-        didSet {
-            episodeUrl = episodeUrl.trimmingCharacters(in: .whitespacesAndNewlines)
-        }
-    }
-    
-    private var title: String = "" {
-        didSet {
-            title = title.trimmingCharacters(in: .whitespacesAndNewlines)
-        }
-    }
-    
-    private var episodeDescription: String = "" {
-        didSet {
-            episodeDescription = episodeDescription.trimmingCharacters(in: .whitespacesAndNewlines)
-        }
-    }
-    
-    
-    private var subtitle: String = "" {
-        didSet {
-            subtitle = subtitle.trimmingCharacters(in: .whitespacesAndNewlines)
-        }
-    }
-
-    private var pubDate: String = "" {
-        didSet {
-            pubDate = pubDate.trimmingCharacters(in: .whitespacesAndNewlines)
-        }
-    }
+    var dictionary = [String: String]()
     
     private var currentElement = ""
     private var didEncounterItem = false
+    
 }
 extension Parser: XMLParserDelegate {
     
@@ -73,96 +42,100 @@ extension Parser: XMLParserDelegate {
         
         switch elementName {
         case RSS.item.rawValue:
-            title = ""
-            
-        case RSS.description.rawValue:
-            episodeDescription = ""
+            dictionary = [String: String]()
             
         case RSS.enclosure.rawValue:
             guard let url = attributeDict["url"] else { return }
-            episodeUrl = url
+            dictionary["url"] = url
+
+        default: break
+        }
+    }
+    
+    //MARK:- CDATA
+    func parser(_ parser: XMLParser, foundCDATA CDATABlock: Data) {
         
-        case RSS.subtitle.rawValue:
-            subtitle = ""
+        if !didEncounterItem {}
         
-        case RSS.pubDate.rawValue:
-            pubDate = ""
-            
-            
+        var string: String?
+    
+        do {
+            string = try NSAttributedString(data: CDATABlock, options: [.documentType: NSAttributedString.DocumentType.html, .characterEncoding: String.Encoding.utf8.rawValue], documentAttributes: nil).string
+        } catch {
+            string = String(bytes: CDATABlock, encoding: .utf8)
+        }
+        
+        switch currentElement {
+        case RSS.description.rawValue:
+            dictionary[RSS.description.rawValue] = string
+        case "itunes:summary":
+            dictionary[RSS.subtitle.rawValue] = string
+        case RSS.title.rawValue:
+            dictionary[RSS.title.rawValue] = string
         default: break
         }
         
     }
     
     func parser(_ parser: XMLParser, foundCharacters string: String) {
-        switch currentElement {
-        case RSS.title.rawValue:
-            title += string
-            break
-            
-        case RSS.description.rawValue:
-            episodeDescription += string
-            break
-            
-        case RSS.subtitle.rawValue:
-            subtitle += string
-            break
-            
-        case RSS.pubDate.rawValue:
-            pubDate += string
-            break
-            
-        default: break
+        var newCharacters = string
+        newCharacters = newCharacters.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        if let c = dictionary[currentElement] {
+            dictionary[currentElement] = c + newCharacters
+        } else {
+            dictionary[currentElement] = newCharacters
         }
+       
     }
     
     func parser(_ parser: XMLParser, didEndElement elementName: String, namespaceURI: String?, qualifiedName qName: String?) {
+        guard let ltitle = dictionary["title"] else { return }
         
+        let podcastTitle = Podcasts.shared.current?.name ?? ""
         switch elementName {
         case RSS.title.rawValue:
             if !didEncounterItem {
-                podcastTitle = title
                 didEncounterItem = true
             } else {
-                if title.starts(with: podcastTitle) {
-                    title = title.replacingOccurrences(of: "\(podcastTitle) ", with: "")
+                if ltitle.starts(with: podcastTitle) {
+                    dictionary["title"] = ltitle.replacingOccurrences(of: "\(podcastTitle) ", with: "")
                 }
             }
             break
             
         case RSS.item.rawValue:
-            var newEpisode = EpisodeDataSource(name: title, artist: nil, description: episodeDescription, episodeUrl: episodeUrl, artworkUrl: nil, releaseDate: nil, length: nil, subtitle: subtitle, inHistory: false, episode: nil)
-
-            newEpisode.releaseDate = parse(date: pubDate)
-
-            if let podcast = Podcasts.shared.current?.podcast {
-                let history = podcast.history?.allObjects as? [History]
-                history?.forEach({ (h) in
-                    if h.name == newEpisode.name {
-                        newEpisode.inHistory = true
-                    }
-                })
-            }
-            
+            var newEpisode = EpisodeDataSource(name: dictionary["title"],
+                                               artist: dictionary["artist"],
+                                               description: dictionary["description"],
+                                               episodeUrl: dictionary["url"],
+                                               artworkUrl: nil,
+                                               releaseDate: nil,
+                                               length: nil,
+                                               subtitle:  dictionary["itunes:subtitle"],
+                                               inHistory: false,
+                                               episode: nil,
+                                               podcast: nil)
+            newEpisode.releaseDate = parse(date: dictionary["pubDate"])
+            newEpisode.inHistory = findInHistory()
             episodes.append(newEpisode)
             break
+            
         default: break
-        }
-        
-        if elementName == RSS.item.rawValue {
         }
     }
     
     func parserDidStartDocument(_ parser: XMLParser) {
         episodes = [EpisodeDataSource]()
-        title = ""
     }
+    
     
     func parserDidEndDocument(_ parser: XMLParser) {
         completionHandler?(episodes)
     }
     
-    func parse(date string: String) -> Date? {
+    func parse(date string: String?) -> Date? {
+        guard let string = string else { return nil }
         let dateFormats = [
             "EEE, d MMM yyyy HH:mm:ss zzz",
             "EEE, d MMM yyyy HH:mm zzz",
@@ -180,12 +153,26 @@ extension Parser: XMLParserDelegate {
 
         return nil
     }
+    
+    func findInHistory() -> Bool {
+        guard let podcast = Podcasts.shared.current?.podcast,
+            let history = podcast.history?.allObjects as? [History] else { return false }
+        
+        for h in history {
+            if h.name == dictionary["title"] {
+                return true
+            }
+        }
+        
+        return false
+    }
+    
 }
 
 extension Parser {
     func parse(url: URL, completion: @escaping ([EpisodeDataSource]) -> ()) {
         self.completionHandler = completion
-
+        
         URLSession.shared.dataTask(with: url) { (data, resp, err) in
             if err != nil {
                 print("Failed to fetch feed: ", err as Any)

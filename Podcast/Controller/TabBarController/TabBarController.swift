@@ -22,6 +22,7 @@ class TabBarController: UITabBarController {
         return homeController
     }()
     
+    let feedController = FeedController()
     var playerDelegate: ModalPlayerDelegate?
     
     override func viewDidLoad() {
@@ -30,15 +31,19 @@ class TabBarController: UITabBarController {
         searchNavController = UINavigationController(rootViewController: searchController)
         guard let searchNavController = searchNavController else { return }
         searchNavController.tabBarItem.image = UIImage(named: "search")
-        searchNavController.title = "search"
+        searchNavController.title = "Search"
         searchController.tabBarDelegate = self
         searchController.subscriptionChangesDelegate = self
         
         homeNavController = UINavigationController(rootViewController: homeController)
         guard let homeNavController = homeNavController else { return }
         homeNavController.tabBarItem.image = UIImage(named: "podcasts")
+        
+        let feedNavController = UINavigationController(rootViewController: feedController)
+        feedNavController.title = "Feed"
+        feedNavController.tabBarItem.image = UIImage(named: "stream")
 
-        viewControllers = [homeNavController, searchNavController]
+        viewControllers = [homeNavController, feedNavController, searchNavController]
         
         //setupDragIndicator()
         setupGestures()

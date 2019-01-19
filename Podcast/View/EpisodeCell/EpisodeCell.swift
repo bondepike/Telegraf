@@ -118,20 +118,21 @@ class EpisodeCell: UITableViewCell {
     
     
     fileprivate func setupLabels() {
-        episodeSubtitle.text = episodeDataSource?.subtitle
+        
+        if let string = episodeDataSource?.subtitle, string.count > 0 {
+            episodeSubtitle.text = string
+        } else {
+            episodeSubtitle.text = episodeDataSource?.description
+        }
+        
         episodeTitle.text = episodeDataSource?.name
-        
-        
         setupDateLabel()
     }
     
     fileprivate func setupDateLabel() {
         guard let date = episodeDataSource?.releaseDate else { return }
         
-        let calendar = Calendar(identifier: .iso8601)
-        
         let formatter = DateFormatter()
-
         let hoursSinceRelease = Date().timeIntervalSince(date) / 3600
         
         if hoursSinceRelease < 24 {
@@ -143,12 +144,12 @@ class EpisodeCell: UITableViewCell {
         } else if hoursSinceRelease < 168 {
             formatter.dateFormat = "EEEE"
             formatter.locale = Locale(identifier: "en_US")
-            releaseDateLabel.text = "\(formatter.string(from: date))"
+            
+            releaseDateLabel.text = "\(formatter.string(from: date))  (\(Int(hoursSinceRelease / 24)) days ago)"
             return
         }
         
         formatter.dateFormat = "dd MMM YYYY"
-        
         releaseDateLabel.text = "\(formatter.string(from: date))"
     }
     
@@ -228,6 +229,7 @@ class EpisodeCell: UITableViewCell {
             timeRemainingLabel.leftAnchor.constraint(equalTo: leftAnchor),
             timeRemainingLabel.rightAnchor.constraint(equalTo: progressView.rightAnchor),
             timeRemainingLabel.bottomAnchor.constraint(equalTo: progressView.bottomAnchor)
+            
             ].forEach { $0.isActive = true }
         
         
@@ -236,7 +238,7 @@ class EpisodeCell: UITableViewCell {
             episodeSubtitle.leftAnchor.constraint(equalTo: progressView.rightAnchor, constant: 7),
             episodeSubtitle.rightAnchor.constraint(equalTo: rightAnchor, constant: -15),
             episodeSubtitle.topAnchor.constraint(equalTo: releaseDateLabel.bottomAnchor, constant: 5),
-            episodeSubtitle.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor, constant: -10)
+            episodeSubtitle.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor, constant: -10),
             //episodeSubtitle.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor, constant: -10)
             ].forEach { $0.isActive = true }
     }

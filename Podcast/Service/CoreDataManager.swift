@@ -105,6 +105,7 @@ class CoreDataManager {
         newEpisode.addedDate = Date()
         podcast.addToEpisodes(newEpisode)
         
+        
         if let history = podcast.history?.allObjects as? [History] {
             let exists = history.contains { (h) -> Bool in
                 return h.name ?? "" == episode.name
@@ -201,12 +202,32 @@ class CoreDataManager {
     func fetchAllPodcasts(completionHandler: @escaping ([Podcast]) -> ()) {
         let context = persistentContainer.viewContext
         let fetchRequest = NSFetchRequest<Podcast>(entityName: "Podcast")
+        
+        //fetchRequest.predicate = NSPredicate(format: "name = %@", "Connected")
+        
         do {
             let fetchedPodcast = try context.fetch(fetchRequest)
             completionHandler(fetchedPodcast)
         } catch let error {
             print("failed to fetch all podcasts from core data: \n", error)
         }
+    }
+    
+    func fetchPodcast(name: String) -> [Podcast]? {
+        let context = persistentContainer.viewContext
+        let fetchRequest = NSFetchRequest<Podcast>(entityName: "Podcast")
+        
+        fetchRequest.predicate = NSPredicate(format: "name = %@", name)
+        fetchRequest.fetchLimit = 1
+        
+        do {
+            let fetched = try context.fetch(fetchRequest)
+            return fetched
+            //completion(fetched)
+        } catch let err {
+            print("Failed to fetch podcast for name: ", err)
+        }
+        return nil
     }
     
     func fetchAllEpisodes(completionHandler: @escaping ([Episode]) ->()) {

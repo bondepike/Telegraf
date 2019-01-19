@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		3A04604F2067F245003CFA6F /* NotificationCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A04604E2067F245003CFA6F /* NotificationCenter.swift */; };
+		3A09325F21EE97EB001B8A9A /* FeedController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A09325E21EE97EB001B8A9A /* FeedController.swift */; };
 		3A0A941A21AADDAC001D872C /* Podcasts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A0A941921AADDAC001D872C /* Podcasts.swift */; };
 		3A16691B20F8DA0900A72A4E /* MasterController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A16691A20F8DA0900A72A4E /* MasterController.swift */; };
 		3A19330E21A4815F00A38EB0 /* Chapters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A19330D21A4815F00A38EB0 /* Chapters.swift */; };
@@ -30,6 +31,7 @@
 		3A3F8E1720760C2E00F9EFC1 /* IBMPlexSans-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3A3F8E0720760C2E00F9EFC1 /* IBMPlexSans-Bold.ttf */; };
 		3A3F8E1B207626B000F9EFC1 /* CamphorPro-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3A3F8E192076262100F9EFC1 /* CamphorPro-Regular.ttf */; };
 		3A3F8E1D207626FE00F9EFC1 /* CamphorPro-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3A3F8E1C207626FE00F9EFC1 /* CamphorPro-Bold.ttf */; };
+		3A5CB90A21F223130046555D /* FeedEpisode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A5CB90921F223130046555D /* FeedEpisode.swift */; };
 		3A621D09206BA4A400852F2A /* Kaffe.c in Sources */ = {isa = PBXBuildFile; fileRef = 3A621D08206BA4A400852F2A /* Kaffe.c */; };
 		3A77DD2F20920F650010964F /* MNAVChapterReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A77DD2D20920F650010964F /* MNAVChapterReader.m */; };
 		3A7B6EF4206BC23900383659 /* Alamofire.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3A7B6EF1206BC22E00383659 /* Alamofire.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -108,6 +110,7 @@
 
 /* Begin PBXFileReference section */
 		3A04604E2067F245003CFA6F /* NotificationCenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationCenter.swift; sourceTree = "<group>"; };
+		3A09325E21EE97EB001B8A9A /* FeedController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedController.swift; sourceTree = "<group>"; };
 		3A0A941921AADDAC001D872C /* Podcasts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Podcasts.swift; sourceTree = "<group>"; };
 		3A16691A20F8DA0900A72A4E /* MasterController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MasterController.swift; sourceTree = "<group>"; };
 		3A19330D21A4815F00A38EB0 /* Chapters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Chapters.swift; sourceTree = "<group>"; };
@@ -130,6 +133,7 @@
 		3A3F8E0720760C2E00F9EFC1 /* IBMPlexSans-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "IBMPlexSans-Bold.ttf"; sourceTree = "<group>"; };
 		3A3F8E192076262100F9EFC1 /* CamphorPro-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "CamphorPro-Regular.ttf"; sourceTree = "<group>"; };
 		3A3F8E1C207626FE00F9EFC1 /* CamphorPro-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "CamphorPro-Bold.ttf"; sourceTree = "<group>"; };
+		3A5CB90921F223130046555D /* FeedEpisode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedEpisode.swift; sourceTree = "<group>"; };
 		3A621D03206B977B00852F2A /* Podcast-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Podcast-Bridging-Header.h"; sourceTree = "<group>"; };
 		3A621D07206BA4A400852F2A /* Kaffe.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Kaffe.h; sourceTree = "<group>"; };
 		3A621D08206BA4A400852F2A /* Kaffe.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = Kaffe.c; sourceTree = "<group>"; };
@@ -366,6 +370,7 @@
 				3ABED388203CB56E0057AE87 /* SearchCell.swift */,
 				9BD09F7B20D4596700EB1BC5 /* EpisodeCell */,
 				3AF2AFF3205DCE1B005FAC9B /* PodcastCell.swift */,
+				3A5CB90921F223130046555D /* FeedEpisode.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -422,6 +427,7 @@
 				3A7ED4A52066F95A009823B9 /* PodcastController */,
 				9B18623520CD810B004E598F /* SearchController */,
 				3AB030EA20FA82F700DA16DA /* MasterController */,
+				3A09325E21EE97EB001B8A9A /* FeedController.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -587,6 +593,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3AF2AFF8205FB96D005FAC9B /* PodcastController.swift in Sources */,
+				3A5CB90A21F223130046555D /* FeedEpisode.swift in Sources */,
 				3AB87DA7210B36FC0058B75B /* TabBarController.swift in Sources */,
 				3AF2AFFE205FEF59005FAC9B /* +UIColor.swift in Sources */,
 				9BD09F7A20D44F3400EB1BC5 /* ModalController.swift in Sources */,
@@ -616,6 +623,7 @@
 				9BFE8F0B203F06CD00EAEADD /* NetworkAPI.swift in Sources */,
 				9BDA280A207A917D004300C6 /* SubscriptionsController+CollectionView.swift in Sources */,
 				3AC926A32070D91A00C23FE0 /* UIDevice.swift in Sources */,
+				3A09325F21EE97EB001B8A9A /* FeedController.swift in Sources */,
 				9B18623B20CD827C004E598F /* SearchController+SubscriptionChangesDelegate.swift in Sources */,
 				3A3C8AC820421D8D004DF47D /* EpisodeCell.swift in Sources */,
 				3AF2AFEA205DA3BC005FAC9B /* NetworkResults.swift in Sources */,

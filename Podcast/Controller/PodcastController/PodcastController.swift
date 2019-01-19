@@ -37,7 +37,7 @@ class PodcastController: UITableViewController, PodcastHeaderViewDelegate {
         tableView.tableFooterView = UIView()
         tableView.contentInset.bottom = 64
         navigationController?.isNavigationBarHidden = false
-        
+
         setupSegmentController()
         setupToolbar()
     }
@@ -46,6 +46,21 @@ class PodcastController: UITableViewController, PodcastHeaderViewDelegate {
         Podcasts.shared.current = nil
     }
     
+    override func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        
+        
+        if tableView.contentOffset.y > headerView.podcastTitleLabel.frame.height + 15 {
+            if navigationItem.title?.count ?? 0 == 0 {
+                UIView.animate(withDuration: 0.7) {
+                    self.navigationItem.title = Podcasts.shared.current?.name
+                }
+            }
+        } else if navigationItem.title?.count ?? 0 > 0 {
+            navigationItem.title = ""
+        }
+        
+        
+    }
 }
 
 //MARK:- Setup

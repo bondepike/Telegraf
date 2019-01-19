@@ -225,8 +225,10 @@ extension ModalPlayer {
 //        podcastName = podcastName.replacingOccurrences(of: " ", with: "_")
 //        fileUrl.appendPathComponent(podcastName)
         
+        
         fileUrl.appendPathComponent(episode.lastLocalPathCompoenent ?? "")
         chapters(url: fileUrl)
+        Chapters(path: fileUrl)
         
         let playerItem = AVPlayerItem(url: fileUrl)
         

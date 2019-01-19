@@ -21,7 +21,9 @@ struct EpisodeDataSource {
     var inHistory: Bool
     
     var episode: Episode?
+    var podcast: Podcast?
 }
+
 
 class Episodes {
     
@@ -63,7 +65,7 @@ extension Episodes {
         }
         
         local.forEach { (ep) in
-            episodes.append(EpisodeDataSource(name: ep.name, artist: ep.artist, description: ep.subtitle, episodeUrl: ep.internetEpisodeURL, artworkUrl: ep.artwork, releaseDate: ep.releaseDate, length: ep.timeLength, subtitle: ep.subtitle, inHistory: false, episode: ep))
+            episodes.append(EpisodeDataSource(name: ep.name, artist: ep.artist, description: ep.subtitle, episodeUrl: ep.internetEpisodeURL, artworkUrl: ep.artwork, releaseDate: ep.releaseDate, length: ep.timeLength, subtitle: ep.subtitle, inHistory: false, episode: ep, podcast: nil))
         }
     }
     
