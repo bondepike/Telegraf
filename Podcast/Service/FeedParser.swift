@@ -54,37 +54,33 @@ extension Parser: XMLParserDelegate {
     
     //MARK:- CDATA
     func parser(_ parser: XMLParser, foundCDATA CDATABlock: Data) {
-        
-        if !didEncounterItem {}
-        
-        var string: String?
-    
-        do {
-            string = try NSAttributedString(data: CDATABlock, options: [.documentType: NSAttributedString.DocumentType.html, .characterEncoding: String.Encoding.utf8.rawValue], documentAttributes: nil).string
-        } catch {
-            string = String(bytes: CDATABlock, encoding: .utf8)
-        }
-        
+        guard didEncounterItem else { return }
+        let string = String(bytes: CDATABlock, encoding: .utf8)
         switch currentElement {
-        case RSS.description.rawValue:
-            dictionary[RSS.description.rawValue] = string
         case "itunes:summary":
             dictionary[RSS.subtitle.rawValue] = string
-        case RSS.title.rawValue:
-            dictionary[RSS.title.rawValue] = string
-        default: break
+            break
+        default:
+            dictionary[currentElement] = string
         }
-        
     }
     
     func parser(_ parser: XMLParser, foundCharacters string: String) {
         var newCharacters = string
         newCharacters = newCharacters.trimmingCharacters(in: .whitespacesAndNewlines)
         
-        if let c = dictionary[currentElement] {
-            dictionary[currentElement] = c + newCharacters
+        var element = currentElement
+        switch currentElement {
+        case "itunes:summary":
+            element = RSS.subtitle.rawValue
+            break
+        default: break
+        }
+        
+        if let c = dictionary[element] {
+            dictionary[element] = c + newCharacters
         } else {
-            dictionary[currentElement] = newCharacters
+            dictionary[element] = newCharacters
         }
        
     }

@@ -118,11 +118,21 @@ class EpisodeCell: UITableViewCell {
     
     
     fileprivate func setupLabels() {
+        var string: String?
         
-        if let string = episodeDataSource?.subtitle, string.count > 0 {
-            episodeSubtitle.text = string
+        if let str = episodeDataSource?.subtitle, str.count > 0 {
+            string = str
         } else {
-            episodeSubtitle.text = episodeDataSource?.description
+            string = episodeDataSource?.description
+        }
+        
+        if let data = string?.data(using: .unicode) {
+            do {
+                let encodedString = try NSAttributedString(data: data, options: [.documentType: NSAttributedString.DocumentType.html, .characterEncoding: String.Encoding.utf8.rawValue], documentAttributes: nil).string
+                episodeSubtitle.text = encodedString
+            } catch {
+                episodeSubtitle.text = string
+            }
         }
         
         episodeTitle.text = episodeDataSource?.name
