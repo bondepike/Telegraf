@@ -23,7 +23,7 @@ class Chapters {
         
         for item in chapts {
             guard let data = item.dataValue else { return }
-            print(String(bytes: data, encoding: .ascii))
+            //print(String(bytes: data, encoding: .ascii))
         }
     }
     

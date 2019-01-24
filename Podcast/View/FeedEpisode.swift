@@ -22,19 +22,36 @@ class FeedEpisodeCell: UITableViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .kindaBlack
+        label.numberOfLines = 2
         return label
     }()
     
-    fileprivate let remainingTime: UILabel = {
+    fileprivate let statusLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        
+        label.textColor = .graySuit
         return label
     }()
     
     var episodeDataSource: EpisodeDataSource? {
         didSet {
-            
+            setupStatusLabel()
+        }
+    }
+    
+    fileprivate func setupStatusLabel() {
+        if let episode = episodeDataSource?.episode {
+            let timeRemaining = Int((episode.timeLength - episode.timeElapsed)/60)
+            statusLabel.text = "\(timeRemaining)m remaining"
+        } else if episodeDataSource?.inHistory ?? false {
+            statusLabel.text = "done"
+            episodeTitle.textColor = .graySuit
+            podcastImage.alpha = 0.5
+        } else {
+            statusLabel.text = ""
+            episodeTitle.textColor = .kindaBlack
+            podcastImage.alpha = 1
+
         }
     }
     
@@ -50,7 +67,7 @@ class FeedEpisodeCell: UITableViewCell {
             podcastImage.topAnchor.constraint(equalTo: topAnchor, constant: 5),
             podcastImage.heightAnchor.constraint(equalToConstant: 60),
             podcastImage.widthAnchor.constraint(equalToConstant: 60),
-            podcastImage.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -5)
+            podcastImage.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor, constant: -5)
             ].forEach { $0.isActive = true }
         
         addSubview(episodeTitle)
@@ -60,18 +77,16 @@ class FeedEpisodeCell: UITableViewCell {
             episodeTitle.topAnchor.constraint(equalTo: topAnchor, constant: 10)
             ].forEach { $0.isActive = true }
         
-        addSubview(remainingTime)
+        addSubview(statusLabel)
         [
-            remainingTime.leftAnchor.constraint(equalTo: podcastImage.rightAnchor, constant: 10),
-            remainingTime.topAnchor.constraint(equalTo: episodeTitle.bottomAnchor, constant: 10),
-            remainingTime.rightAnchor.constraint(equalTo: rightAnchor, constant: -20)
+            statusLabel.leftAnchor.constraint(equalTo: podcastImage.rightAnchor, constant: 10),
+            statusLabel.topAnchor.constraint(equalTo: episodeTitle.bottomAnchor, constant: 5),
+            statusLabel.rightAnchor.constraint(equalTo: rightAnchor, constant: -20),
+            statusLabel.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor, constant: -10)
             ].forEach { $0.isActive = true }
-        
         }
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    
 }

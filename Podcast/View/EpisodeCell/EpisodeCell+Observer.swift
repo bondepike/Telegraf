@@ -28,7 +28,7 @@ extension EpisodeCell {
         elapsedTimeProgressShapeLayer.strokeEnd = 1 - CGFloat(percentage)
         self.isUserInteractionEnabled = true
     }
-//
+
     @objc func handleDownloadFinished(notification: Notification) {
         guard let episodeName = notification.userInfo?["name"] as? String else { return }
 
@@ -84,7 +84,4 @@ extension EpisodeCell {
         timeRemainingLabel.text = "On It!"
         elapsedTimeProgressShapeLayer.isHidden = true
     }
-    
-    
-    
 }

@@ -87,7 +87,6 @@ extension Parser: XMLParserDelegate {
     
     func parser(_ parser: XMLParser, didEndElement elementName: String, namespaceURI: String?, qualifiedName qName: String?) {
         guard let ltitle = dictionary["title"] else { return }
-        
         let podcastTitle = Podcasts.shared.current?.name ?? ""
         switch elementName {
         case RSS.title.rawValue:

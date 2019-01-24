@@ -24,13 +24,9 @@ class FeedController: UITableViewController {
         super.viewDidLoad()
         tableView.tableFooterView = UIView()
         title = "Feed"
-        
-        
         tableView.addSubview(refresher)
         refresher.addTarget(self, action: #selector(fetchFeed), for: .valueChanged)
-
         tableView.register(FeedEpisodeCell.self, forCellReuseIdentifier: "cellid")
-        
         fetchFeed()
     }
     
@@ -83,19 +79,23 @@ class FeedController: UITableViewController {
 extension FeedController {
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
         let cell = tableView.dequeueReusableCell(withIdentifier: "cellid", for: indexPath) as! FeedEpisodeCell
         cell.episodeTitle.text = episodeDataSource?[indexPath.row].name
-        
         if let artwork = episodeDataSource?[indexPath.row].podcast?.artwork {
             cell.podcastImage.image = UIImage(data: artwork)
         }
-        
         if episodeDataSource?[indexPath.row].inHistory ?? false {
             //cell.backgroundColor = .blue
         }
-        
+        cell.episodeDataSource = episodeDataSource?[indexPath.row]
         return cell
+    }
+    
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if let episode = episodeDataSource?[indexPath.row].episode {
+            NotificationCenter.default.post(name: .playNewEpisode, object: episode)
+        }
+        tableView.deselectRow(at: indexPath, animated: true)
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
