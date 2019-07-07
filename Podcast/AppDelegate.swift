@@ -65,7 +65,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func setupAppearance() {
-        UINavigationBar.appearance().tintColor = .kindaBlack//UIColor(red:0.57, green:0.60, blue:0.64, alpha:1.00)//.applePink
+        UINavigationBar.appearance().tintColor = .kindaBlack
+        //UIColor(red:0.57, green:0.60, blue:0.64, alpha:1.00)//.applePink
         UINavigationBar.appearance().backgroundColor = .white
 
         UINavigationBar.appearance().isTranslucent = false
@@ -80,7 +81,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         UISearchBar.appearance().backgroundImage = UIImage()
         UISearchBar.appearance().layer.borderColor = UIColor.white.cgColor
 
-        UITabBar.appearance().isTranslucent = false
+        //UITabBar.appearance().isTranslucent = false
         UITabBar.appearance().tintColor = .applePink//.ibmBlue
         
         UIBarButtonItem.appearance().setTitleTextAttributes([
