@@ -7,7 +7,9 @@
 //
 
 import Foundation
-import Alamofire
+//import Alamofire
+
+typealias HTTPHeaders = [String : String]
 
 class NetworkAPI: NSObject, URLSessionTaskDelegate, URLSessionDownloadDelegate {
     
@@ -28,12 +30,10 @@ extension NetworkAPI {
         guard let url = URL(string: "\(host)/feed") else { return }
         //guard let url = URL(string: "http://localhost:8000/feed") else { return }
         guard let jwt = UserDefaults.standard.string(forKey: "jwt") else { return }
-        let headers: HTTPHeaders = [
-            "Json-Web-Token": jwt,
-            ]
         do {
-            let req = try URLRequest(url: url, method: .post, headers: headers)
-            
+            var req = URLRequest(url: url)
+            req.addValue(jwt, forHTTPHeaderField: "Json-Web-Token")
+            req.httpMethod = "POST"
             URLSession.shared.dataTask(with: req) { (data, response, err) in
                 if let err = err {
                     print("Failed to make /feed request: ", err)
@@ -85,8 +85,9 @@ extension NetworkAPI {
             "Json-Web-Token": jwt,
         ]
         do {
-            let req = try URLRequest(url: url, method: .post, headers: headers)
-            
+            var req = URLRequest(url: url)
+            req.httpMethod = "POST"
+            req.addValue(jwt, forHTTPHeaderField: "Json-Web-Token")
             URLSession.shared.dataTask(with: req) { (data, response, err) in
                 if let err = err {
                     print("Failed to make /jwt/valid request: ", err)
@@ -142,7 +143,10 @@ extension NetworkAPI {
         ]
         
         do {
-            let urlRequest = try URLRequest(url: "\(host)/notify", method: HTTPMethod.post, headers: headers)
+            guard let url = URL(string: "\(host)/notify") else { return }
+            let urlRequest = URLRequest(url: url)
+            // TODO: Add headers to request (see above)
+            
             URLSession.shared.dataTask(with: urlRequest) { (data, response, err) in
                 if let err = err {
                     print("Error: ", err)
@@ -174,7 +178,9 @@ extension NetworkAPI {
         ]
         
         do {
-            let urlRequest = try URLRequest(url: "\(host)/subscribe", method: HTTPMethod.post, headers: headers)
+            guard let url = URL(string: "\(host)/subscribe") else { return }
+            let urlRequest = URLRequest(url: url)
+            
             URLSession.shared.dataTask(with: urlRequest) { (data, res, err) in
                 guard let res = res as? HTTPURLResponse else { return }
                 print("Status Code: ", res.statusCode)
@@ -198,7 +204,8 @@ extension NetworkAPI {
         ]
         
         do {
-            let urlRequest = try URLRequest(url: "\(host)/unsubscribe", method: .post, headers: headers)
+            guard let url = URL(string : "\(host)/unsubscribe") else { return }
+            let urlRequest = URLRequest(url: url)
             URLSession.shared.dataTask(with: urlRequest) { (data, resp, err) in
                 if let err = err {
                     print("Failed to unsubscribe: ", err)
@@ -219,7 +226,9 @@ extension NetworkAPI {
             "Device-Token": deviceToken
         ]
         do {
-            let urlRequest = try URLRequest(url: "\(host)/device-token", method: HTTPMethod.post, headers: headers)
+            guard let url = URL(string: "\(host)/device-token") else { return }
+            let urlRequest = URLRequest(url: url)
+            
             URLSession.shared.dataTask(with: urlRequest, completionHandler: { (data, response, error) in
                 if let err = error {
                     print("Failed to push device token: ", err)
@@ -347,18 +356,3 @@ extension NetworkAPI {
             ])
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

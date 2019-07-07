@@ -35,7 +35,6 @@
 		3A5CB90A21F223130046555D /* FeedEpisode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A5CB90921F223130046555D /* FeedEpisode.swift */; };
 		3A621D09206BA4A400852F2A /* Kaffe.c in Sources */ = {isa = PBXBuildFile; fileRef = 3A621D08206BA4A400852F2A /* Kaffe.c */; };
 		3A77DD2F20920F650010964F /* MNAVChapterReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A77DD2D20920F650010964F /* MNAVChapterReader.m */; };
-		3A7B6EF4206BC23900383659 /* Alamofire.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3A7B6EF1206BC22E00383659 /* Alamofire.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		3A7ED4A42066F8BC009823B9 /* PodcastController+TableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A7ED4A32066F8BC009823B9 /* PodcastController+TableView.swift */; };
 		3A8F906E21ADAA49008E8F34 /* FeedParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A8F906D21ADAA49008E8F34 /* FeedParser.swift */; };
 		3A9045B02135BA1100BBAE94 /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A9045AF2135BA1100BBAE94 /* String.swift */; };
@@ -95,17 +94,6 @@
 			files = (
 			);
 			name = "Embed PlugIns";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		3A7B6EEA206BC1C900383659 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				3A7B6EF4206BC23900383659 /* Alamofire.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -472,7 +460,6 @@
 				9BFE8EE4203476E300EAEADD /* Sources */,
 				9BFE8EE5203476E300EAEADD /* Frameworks */,
 				9BFE8EE6203476E300EAEADD /* Resources */,
-				3A7B6EEA206BC1C900383659 /* Embed Frameworks */,
 				3A77DD2A20920E950010964F /* Embed PlugIns */,
 				3AE454DC20A85575001945F2 /* ShellScript */,
 			);
