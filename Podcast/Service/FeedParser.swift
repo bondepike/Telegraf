@@ -111,7 +111,7 @@ extension Parser: XMLParserDelegate {
                                                inHistory: false,
                                                episode: nil,
                                                podcast: nil)
-            newEpisode.releaseDate = parse(date: dictionary["pubDate"])
+            newEpisode.releaseDate = dictionary["pubDate"]?.parseRSSDate()
             newEpisode.inHistory = findInHistory()
             episodes.append(newEpisode)
             break

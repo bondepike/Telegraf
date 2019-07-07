@@ -12,6 +12,7 @@ import Foundation
 class Chapters {
     
     init(path: URL) {
+        /*
         let asset = AVAsset(url: path)
         print(asset.availableMetadataFormats)
         
@@ -21,10 +22,11 @@ class Chapters {
         
         let chapts = AVMetadataItem.metadataItems(from: arr, withKey: "CHAP", keySpace: AVMetadataKeySpace(rawValue: "org.id3"))
         
-        for item in chapts {
-            guard let data = item.dataValue else { return }
+        //for item in chapts {
+            //guard let data = item.dataValue else { return }
             //print(String(bytes: data, encoding: .ascii))
-        }
+        //}
+ */
     }
     
 }

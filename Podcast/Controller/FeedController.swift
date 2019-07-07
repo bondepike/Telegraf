@@ -12,44 +12,60 @@ class FeedController: UITableViewController {
     
     var feed = [FeedEpisode]()
     
-    var episodeDataSource: [EpisodeDataSource]? {
+    var episodeDataSource: [[EpisodeDataSource]]? {
         didSet {
             self.tableView.reloadData()
         }
     }
     
-    let refresher = UIRefreshControl()
+    lazy var refresher: UIRefreshControl = {
+        let refresher = UIRefreshControl()
+        refresher.addTarget(self, action: #selector(fetchFeed), for: .valueChanged)
+        return refresher
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        tableView.tableFooterView = UIView()
-        title = "Feed"
-        tableView.addSubview(refresher)
-        refresher.addTarget(self, action: #selector(fetchFeed), for: .valueChanged)
+        title = "Week"
+        view.backgroundColor = .white
+        tableView.refreshControl = refresher
         tableView.register(FeedEpisodeCell.self, forCellReuseIdentifier: "cellid")
+        tableView.tableFooterView = UIView()
         fetchFeed()
     }
     
+}
+
+// MARK:- Fetching feed
+extension FeedController {
     @objc func fetchFeed() {
         refresher.beginRefreshing()
-        var datasource = [EpisodeDataSource]()
+        var datasource = [[EpisodeDataSource]]()
         NetworkAPI.shared.fetchFeed { (feed) in
-            for f in feed {
-                let podcast = CoreDataManager.shared.fetchPodcast(name: f.Podcast ?? "")
-                let ds = EpisodeDataSource(name: f.Name,
-                                           artist: nil,
-                                           description: nil,
-                                           episodeUrl: nil,
-                                           artworkUrl: nil,
-                                           releaseDate: nil,
-                                           length: nil,
-                                           subtitle: nil,
-                                           inHistory: self.inHistory(named: f.Name ?? "", from: podcast?.first),
-                                           episode: self.getEpisode(named: f.Name ?? "", from: podcast?.first),
-                                           podcast: podcast?.first)
-                datasource.append(ds)
-            }
             
+            
+            feed.forEach({ (day) in
+                var dayDataSource = [EpisodeDataSource]()
+                for f in day {
+                    let podcast = CoreDataManager.shared.fetchPodcast(name: f.Podcast ?? "")
+                    let ds = EpisodeDataSource(name: f.Name,
+                                               artist: nil,
+                                               description: nil,
+                                               episodeUrl: nil,
+                                               artworkUrl: nil,
+                                               releaseDate: f.PubDate?.parseRSSDate(),
+                                               length: nil,
+                                               subtitle: nil,
+                                               inHistory: self.inHistory(named: f.Name ?? "", from: podcast?.first),
+                                               episode: self.getEpisode(named: f.Name ?? "", from: podcast?.first),
+                                               podcast: podcast?.first)
+                    
+                    dayDataSource.append(ds)
+                }
+                datasource.append(dayDataSource)
+            })
+            
+            datasource.reverse()
             DispatchQueue.main.async {
                 self.episodeDataSource = datasource
                 self.refresher.endRefreshing()
@@ -73,37 +89,66 @@ class FeedController: UITableViewController {
             return h.name == named
         }
     }
-    
 }
+
 
 extension FeedController {
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cellid", for: indexPath) as! FeedEpisodeCell
-        cell.episodeTitle.text = episodeDataSource?[indexPath.row].name
-        if let artwork = episodeDataSource?[indexPath.row].podcast?.artwork {
-            cell.podcastImage.image = UIImage(data: artwork)
-        }
-        if episodeDataSource?[indexPath.row].inHistory ?? false {
-            //cell.backgroundColor = .blue
-        }
-        cell.episodeDataSource = episodeDataSource?[indexPath.row]
+        cell.episodeDataSource = episodeDataSource?[indexPath.section][indexPath.row]
         return cell
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if let episode = episodeDataSource?[indexPath.row].episode {
+        if let episode = episodeDataSource?[indexPath.section][indexPath.row].episode {
             NotificationCenter.default.post(name: .playNewEpisode, object: episode)
         }
         tableView.deselectRow(at: indexPath, animated: true)
     }
     
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+   override func numberOfSections(in tableView: UITableView) -> Int {
         return episodeDataSource?.count ?? 0
     }
+    
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return episodeDataSource?[section].count ?? 0
+    }
 
-    override func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
+    override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let headerView = FeedHeaderLabel()
+        
+        guard let date = episodeDataSource?[section].first?.releaseDate else {
+            return nil
+        }
+
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEEE"
+
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        formatter.locale = Locale(identifier: "en_GB")
+
+        headerView.text = formatter.string(from: date)
+        
+        var calendar = Calendar(identifier: .iso8601)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        
+        if calendar.isDateInToday(date) {
+            headerView.text = "Today"
+        } else if calendar.isDateInYesterday(date) {
+            headerView.text = "Yesterday"
+        }
+                
+        let containerView = UIView()
+        containerView.addSubview(headerView)
+        headerView.centerXAnchor.constraint(equalTo: containerView.centerXAnchor).isActive = true
+        headerView.centerYAnchor.constraint(equalTo: containerView.centerYAnchor).isActive = true
+        
+        return containerView
+    }
+    
+    override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 50
     }
     
 }

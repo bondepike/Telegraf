@@ -47,8 +47,6 @@ class PodcastController: UITableViewController, PodcastHeaderViewDelegate {
     }
     
     override func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        
-        
         if tableView.contentOffset.y > headerView.podcastTitleLabel.frame.height + 15 {
             if navigationItem.title?.count ?? 0 == 0 {
                 UIView.animate(withDuration: 0.7) {
@@ -58,8 +56,6 @@ class PodcastController: UITableViewController, PodcastHeaderViewDelegate {
         } else if navigationItem.title?.count ?? 0 > 0 {
             navigationItem.title = ""
         }
-        
-        
     }
 }
 
@@ -101,7 +97,7 @@ extension PodcastController {
     
     fileprivate func setupSubscribe() {
         subscribeButton.tintColor = .ibmBlue
-        subscribeButton.setTitleTextAttributes([NSAttributedStringKey.font : UIFont(name: "IBMPlexMono-Bold", size: 18)], for: .normal)
+        subscribeButton.setTitleTextAttributes([NSAttributedStringKey.font : UIFont(name: "IBMPlexMono-Bold", size: 18) as Any], for: .normal)
         navigationItem.rightBarButtonItem = subscribeButton
     }
 }

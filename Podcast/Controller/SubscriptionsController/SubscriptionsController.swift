@@ -90,7 +90,7 @@ class SubscriptionsController: UICollectionViewController, UICollectionViewDeleg
     fileprivate func setupUI() {
         title = "Podcasts"
         let titleTextAttributes = [
-            NSAttributedStringKey.foregroundColor: UIColor.graySuit,
+            NSAttributedStringKey.foregroundColor: UIColor.kindaBlack,
             NSAttributedStringKey.font: UIFont(name: "IBMPlexSans-SemiBold", size: 18) as Any]
         navigationController?.navigationBar.titleTextAttributes = titleTextAttributes
     }

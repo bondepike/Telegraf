@@ -51,7 +51,7 @@ class ModalPlayer: UIViewController {
     let artwork: UIImageView = {
         let imageView = UIImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.layer.cornerRadius = 15
+        imageView.layer.cornerRadius = 5
         imageView.clipsToBounds = true
         imageView.layer.borderWidth = 0
         imageView.layer.borderColor = UIColor.white.cgColor
@@ -62,7 +62,7 @@ class ModalPlayer: UIViewController {
     let episodeName: UILabel = {
         let label = UILabel()
         label.textColor = .white
-        label.font = UIFont(name: "IBMPlexMono-Bold", size: 24)
+        label.font = UIFont(name: "IBMPlexMono-Bold", size: 18)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 5
         
@@ -101,7 +101,7 @@ extension ModalPlayer {
         view.addGestureRecognizer(presentGesture)
 
         dismissGesture = UIPanGestureRecognizer(target: self, action: #selector(handleDismissGesture))
-        dismissGesture.isEnabled = false
+        dismissGesture.isEnabled = true//false
         view.addGestureRecognizer(dismissGesture)
         
     }
@@ -435,19 +435,19 @@ extension ModalPlayer {
         let screenSize = UIScreen.main.bounds
         view.addSubview(artwork)
         [
-            artwork.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 36),
-            artwork.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -36),
-            artwork.heightAnchor.constraint(equalToConstant: screenSize.width-36*2),
-            artwork.topAnchor.constraint(equalTo: view.topAnchor, constant: 56)
+            artwork.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 5),
+            artwork.bottomAnchor.constraint(equalTo: rewindButton.topAnchor, constant: -30),
+            artwork.widthAnchor.constraint(equalToConstant: 90),
+            artwork.heightAnchor.constraint(equalToConstant: 90)
             ].forEach { $0.isActive = true }
     }
     
     fileprivate func setupTextLabel() {
         view.addSubview(episodeName)
         [
-            episodeName.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 24),
+            episodeName.leftAnchor.constraint(equalTo: artwork.rightAnchor, constant: 24),
             episodeName.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -24),
-            episodeName.topAnchor.constraint(equalTo: artwork.bottomAnchor, constant: 15)
+            episodeName.topAnchor.constraint(equalTo: artwork.topAnchor, constant: 15)
             ].forEach { $0.isActive = true }
     }
     

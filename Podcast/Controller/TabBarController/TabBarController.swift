@@ -39,11 +39,17 @@ class TabBarController: UITabBarController {
         guard let homeNavController = homeNavController else { return }
         homeNavController.tabBarItem.image = UIImage(named: "podcasts")
         
+        tabBar.tintColor = .kindaBlack
+        
+        
         let feedNavController = UINavigationController(rootViewController: feedController)
-        feedNavController.title = "Feed"
+        feedNavController.title = "Week"
         feedNavController.tabBarItem.image = UIImage(named: "stream")
 
         viewControllers = [homeNavController, feedNavController, searchNavController]
+        
+        //tabBar.translatesAutoresizingMaskIntoConstraints = false
+        //tabBar.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -10).isActive = true
         
         //setupDragIndicator()
         setupGestures()

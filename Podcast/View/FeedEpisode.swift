@@ -35,6 +35,10 @@ class FeedEpisodeCell: UITableViewCell {
     
     var episodeDataSource: EpisodeDataSource? {
         didSet {
+            if let artwork = episodeDataSource?.podcast?.artwork {
+                podcastImage.image = UIImage(data: artwork)
+            }
+            episodeTitle.text = episodeDataSource?.name
             setupStatusLabel()
         }
     }

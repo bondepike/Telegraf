@@ -10,6 +10,7 @@
 		3A04604F2067F245003CFA6F /* NotificationCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A04604E2067F245003CFA6F /* NotificationCenter.swift */; };
 		3A09325F21EE97EB001B8A9A /* FeedController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A09325E21EE97EB001B8A9A /* FeedController.swift */; };
 		3A0A941A21AADDAC001D872C /* Podcasts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A0A941921AADDAC001D872C /* Podcasts.swift */; };
+		3A0EA8AC21FCDDD90011D411 /* Date.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A0EA8AB21FCDDD90011D411 /* Date.swift */; };
 		3A16691B20F8DA0900A72A4E /* MasterController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A16691A20F8DA0900A72A4E /* MasterController.swift */; };
 		3A19330E21A4815F00A38EB0 /* Chapters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A19330D21A4815F00A38EB0 /* Chapters.swift */; };
 		3A27F1F5208527D800312970 /* SubscriptionChangesDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A27F1F4208527D800312970 /* SubscriptionChangesDelegate.swift */; };
@@ -50,6 +51,7 @@
 		3AF2AFF8205FB96D005FAC9B /* PodcastController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AF2AFF7205FB96D005FAC9B /* PodcastController.swift */; };
 		3AF2AFFA205FBC2A005FAC9B /* PodcastHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AF2AFF9205FBC2A005FAC9B /* PodcastHeaderView.swift */; };
 		3AF2AFFE205FEF59005FAC9B /* +UIColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AF2AFFD205FEF59005FAC9B /* +UIColor.swift */; };
+		3AF7098221FE04A200F12FB3 /* FeedHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AF7098121FE04A200F12FB3 /* FeedHeaderView.swift */; };
 		9B18623720CD8135004E598F /* SearchController+TableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B18623620CD8135004E598F /* SearchController+TableView.swift */; };
 		9B18623920CD817A004E598F /* SearchController+Search.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B18623820CD817A004E598F /* SearchController+Search.swift */; };
 		9B18623B20CD827C004E598F /* SearchController+SubscriptionChangesDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B18623A20CD827C004E598F /* SearchController+SubscriptionChangesDelegate.swift */; };
@@ -112,6 +114,7 @@
 		3A04604E2067F245003CFA6F /* NotificationCenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationCenter.swift; sourceTree = "<group>"; };
 		3A09325E21EE97EB001B8A9A /* FeedController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedController.swift; sourceTree = "<group>"; };
 		3A0A941921AADDAC001D872C /* Podcasts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Podcasts.swift; sourceTree = "<group>"; };
+		3A0EA8AB21FCDDD90011D411 /* Date.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Date.swift; sourceTree = "<group>"; };
 		3A16691A20F8DA0900A72A4E /* MasterController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MasterController.swift; sourceTree = "<group>"; };
 		3A19330D21A4815F00A38EB0 /* Chapters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Chapters.swift; sourceTree = "<group>"; };
 		3A27F1F4208527D800312970 /* SubscriptionChangesDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionChangesDelegate.swift; sourceTree = "<group>"; };
@@ -159,6 +162,7 @@
 		3AF2AFF7205FB96D005FAC9B /* PodcastController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodcastController.swift; sourceTree = "<group>"; };
 		3AF2AFF9205FBC2A005FAC9B /* PodcastHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodcastHeaderView.swift; sourceTree = "<group>"; };
 		3AF2AFFD205FEF59005FAC9B /* +UIColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "+UIColor.swift"; sourceTree = "<group>"; };
+		3AF7098121FE04A200F12FB3 /* FeedHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedHeaderView.swift; sourceTree = "<group>"; };
 		9B18623620CD8135004E598F /* SearchController+TableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SearchController+TableView.swift"; sourceTree = "<group>"; };
 		9B18623820CD817A004E598F /* SearchController+Search.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SearchController+Search.swift"; sourceTree = "<group>"; };
 		9B18623A20CD827C004E598F /* SearchController+SubscriptionChangesDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SearchController+SubscriptionChangesDelegate.swift"; sourceTree = "<group>"; };
@@ -299,6 +303,7 @@
 				3A04604E2067F245003CFA6F /* NotificationCenter.swift */,
 				3AC926A22070D91A00C23FE0 /* UIDevice.swift */,
 				3A9045AF2135BA1100BBAE94 /* String.swift */,
+				3A0EA8AB21FCDDD90011D411 /* Date.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -371,6 +376,7 @@
 				9BD09F7B20D4596700EB1BC5 /* EpisodeCell */,
 				3AF2AFF3205DCE1B005FAC9B /* PodcastCell.swift */,
 				3A5CB90921F223130046555D /* FeedEpisode.swift */,
+				3AF7098121FE04A200F12FB3 /* FeedHeaderView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -421,11 +427,11 @@
 			isa = PBXGroup;
 			children = (
 				9BD09F7920D44F3400EB1BC5 /* ModalController.swift */,
-				3AB87DA5210B36E50058B75B /* TabBarController */,
 				9BDA280B207A9289004300C6 /* SubscriptionsController */,
 				9B2C108120FBC219008EEAD5 /* ModalPlayer */,
 				3A7ED4A52066F95A009823B9 /* PodcastController */,
 				9B18623520CD810B004E598F /* SearchController */,
+				3AB87DA5210B36E50058B75B /* TabBarController */,
 				3AB030EA20FA82F700DA16DA /* MasterController */,
 				3A09325E21EE97EB001B8A9A /* FeedController.swift */,
 			);
@@ -615,6 +621,7 @@
 				3AF2AFF4205DCE1B005FAC9B /* PodcastCell.swift in Sources */,
 				3A0A941A21AADDAC001D872C /* Podcasts.swift in Sources */,
 				3AF2AFEF205DB4F6005FAC9B /* CoreDataManager.swift in Sources */,
+				3AF7098221FE04A200F12FB3 /* FeedHeaderView.swift in Sources */,
 				3A27F1F5208527D800312970 /* SubscriptionChangesDelegate.swift in Sources */,
 				3A9045B02135BA1100BBAE94 /* String.swift in Sources */,
 				9B2C108320FBCFA1008EEAD5 /* ModalPlayer.swift in Sources */,
@@ -629,6 +636,7 @@
 				3AF2AFEA205DA3BC005FAC9B /* NetworkResults.swift in Sources */,
 				3A19330E21A4815F00A38EB0 /* Chapters.swift in Sources */,
 				9BD09F7D20D4598100EB1BC5 /* EpisodeCell+Observer.swift in Sources */,
+				3A0EA8AC21FCDDD90011D411 /* Date.swift in Sources */,
 				3A16691B20F8DA0900A72A4E /* MasterController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

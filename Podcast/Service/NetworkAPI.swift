@@ -24,7 +24,7 @@ struct FeedEpisode: Decodable {
 }
 
 extension NetworkAPI {
-    func fetchFeed(completion: @escaping ([FeedEpisode]) -> ()){
+    func fetchFeed(completion: @escaping ([[FeedEpisode]]) -> ()){
         guard let url = URL(string: "\(host)/feed") else { return }
         //guard let url = URL(string: "http://localhost:8000/feed") else { return }
         guard let jwt = UserDefaults.standard.string(forKey: "jwt") else { return }
@@ -42,7 +42,7 @@ extension NetworkAPI {
                 
                 guard let data = data else { return }
                 do {
-                    let decoded = try JSONDecoder().decode([FeedEpisode].self, from: data)
+                    let decoded = try JSONDecoder().decode([[FeedEpisode]].self, from: data)
                     completion(decoded)
                 } catch let err {
                     print(err)
