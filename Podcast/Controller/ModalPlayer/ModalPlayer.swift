@@ -51,7 +51,7 @@ class ModalPlayer: UIViewController {
     let artwork: UIImageView = {
         let imageView = UIImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.layer.cornerRadius = 15
+        imageView.layer.cornerRadius = 5
         imageView.clipsToBounds = true
         imageView.layer.borderWidth = 0
         imageView.layer.borderColor = UIColor.white.cgColor
@@ -62,7 +62,7 @@ class ModalPlayer: UIViewController {
     let episodeName: UILabel = {
         let label = UILabel()
         label.textColor = .white
-        label.font = UIFont(name: "IBMPlexMono-Bold", size: 24)
+        label.font = UIFont(name: "IBMPlexMono-Bold", size: 18)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 5
         
@@ -86,10 +86,10 @@ class ModalPlayer: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .black//UIColor(red:0.06, green:0.13, blue:0.15, alpha:1.0)
         setupAutoLayout()
         setupObservers()
         setupGestures()
+        setupBackgroundColor()
     }
 }
 
@@ -101,7 +101,7 @@ extension ModalPlayer {
         view.addGestureRecognizer(presentGesture)
 
         dismissGesture = UIPanGestureRecognizer(target: self, action: #selector(handleDismissGesture))
-        dismissGesture.isEnabled = false
+        dismissGesture.isEnabled = true//false
         view.addGestureRecognizer(dismissGesture)
         
     }
@@ -202,6 +202,7 @@ extension ModalPlayer {
             
             //TODO: Bytte på denne API-en
             CoreDataManager.shared.updateEpisodeTimes(episode: currentEpisode, elapsedTime: elapsedSeconds, episodeLength: durationSeconds, completionHandler: { (_) in
+                NotificationCenter.default.post(name: .elapsedTimeProgress, object: nil)
             })
         }
     }
@@ -224,9 +225,14 @@ extension ModalPlayer {
 //        podcastName = podcastName.replacingOccurrences(of: " ", with: "_")
 //        fileUrl.appendPathComponent(podcastName)
         
+        
         fileUrl.appendPathComponent(episode.lastLocalPathCompoenent ?? "")
+        chapters(url: fileUrl)
+        Chapters(path: fileUrl)
         
         let playerItem = AVPlayerItem(url: fileUrl)
+        
+        
         player.replaceCurrentItem(with: playerItem)
         
         currentEpisode = episode
@@ -239,6 +245,23 @@ extension ModalPlayer {
         setupEpisodeMetadata(episode: episode)
         setupMediaPlayerNowPlayingInfo(for: episode)
         setupRemoteControll()
+    }
+    
+    fileprivate func chapters(url: URL) {
+        let data = try NSData(contentsOf: url)
+        
+        guard let length = data?.length else { return }
+        
+        let count = length / Int(UInt32.max)
+        
+        var arr = [UInt32](repeating: 0, count: length)
+        data?.getBytes(&arr, length: length)
+        
+        print(Int(arr[0].bigEndian))
+        print(arr[1])
+        print(arr[2])
+        print(arr[15])
+
     }
     
     fileprivate func setupMediaPlayerNowPlayingInfo(for episode: Episode) {
@@ -344,7 +367,6 @@ extension ModalPlayer {
         commandCenter.skipForwardCommand.preferredIntervals = [30]
         commandCenter.skipForwardCommand.addTarget { [unowned self] (_) -> MPRemoteCommandHandlerStatus in
             self.handleForward()
-
             return .success
         }
         
@@ -352,23 +374,31 @@ extension ModalPlayer {
         commandCenter.skipBackwardCommand.preferredIntervals = [10]
         commandCenter.skipBackwardCommand.addTarget { [unowned self] (_) -> MPRemoteCommandHandlerStatus in
             self.handleRewind()
-
             return .success
         }
         
         commandCenter.togglePlayPauseCommand.isEnabled = true
         commandCenter.togglePlayPauseCommand.addTarget { [unowned self] (_) -> MPRemoteCommandHandlerStatus in
             self.handlePlayPause()
-            
             return .success
         }
+    
         
     }
     
 }
 
-//MARK:- Auto Layout
+//MARK:- Layout
 extension ModalPlayer {
+    func setupBackgroundColor() {
+        switch UIDevice.screenType {
+        case .iphoneXR, .iphoneX, .iphoneXMax:
+            view.backgroundColor = .black
+            break
+        default: view.backgroundColor = .kindaBlack
+        }
+    }
+    
     func setupAutoLayout() {
         setupPlayControll()
         setupArtwork()
@@ -405,19 +435,19 @@ extension ModalPlayer {
         let screenSize = UIScreen.main.bounds
         view.addSubview(artwork)
         [
-            artwork.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 36),
-            artwork.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -36),
-            artwork.heightAnchor.constraint(equalToConstant: screenSize.width-36*2),
-            artwork.topAnchor.constraint(equalTo: view.topAnchor, constant: 56)
+            artwork.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 5),
+            artwork.bottomAnchor.constraint(equalTo: rewindButton.topAnchor, constant: -30),
+            artwork.widthAnchor.constraint(equalToConstant: 90),
+            artwork.heightAnchor.constraint(equalToConstant: 90)
             ].forEach { $0.isActive = true }
     }
     
     fileprivate func setupTextLabel() {
         view.addSubview(episodeName)
         [
-            episodeName.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 24),
+            episodeName.leftAnchor.constraint(equalTo: artwork.rightAnchor, constant: 24),
             episodeName.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -24),
-            episodeName.topAnchor.constraint(equalTo: artwork.bottomAnchor, constant: 15)
+            episodeName.topAnchor.constraint(equalTo: artwork.topAnchor, constant: 15)
             ].forEach { $0.isActive = true }
     }
     

@@ -24,7 +24,7 @@ class SubscriptionsController: UICollectionViewController, UICollectionViewDeleg
     
     func segmentedControllerUpdatedIndex(index: Int) {}
     
-    let playerView = PlayerViewController()
+   // let playerView = PlayerViewController()
 
     //MARK:- Data
     var podcasts: [Podcast]? {
@@ -49,13 +49,22 @@ class SubscriptionsController: UICollectionViewController, UICollectionViewDeleg
         fetchFavoritePodcasts()
         setupNavigationbar()
         setupModalSearchController()
-        
+        setupObservers()
     }
+    
+
     
     func setupNavigationbar() {
         //let historyButton = UIBarButtonItem(image: #imageLiteral(resourceName: "history"), style: .plain, target: self, action: #selector(presentHistoryController))
+        
+        navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: self, action: nil)
+
     }
 
+    @objc fileprivate func handleDismiss() {
+        print("backing...")
+    }
+    
     func setupModalSearchController() {
         let searchController = SearchController()
         searchController.podcasts = podcasts
@@ -76,16 +85,13 @@ class SubscriptionsController: UICollectionViewController, UICollectionViewDeleg
         navigationController?.pushViewController(searchController, animated: true)
     }
     
-    @objc fileprivate func presentHistoryController() {
-        let historyController = HistoryController()
-        navigationController?.pushViewController(historyController, animated: true)
-    }
+
     
     fileprivate func setupUI() {
         title = "Podcasts"
         let titleTextAttributes = [
-            NSAttributedStringKey.foregroundColor: UIColor.applePink,
-            NSAttributedStringKey.font: UIFont(name: "IBMPlexSans-Bold", size: 18) as Any]
+            NSAttributedStringKey.foregroundColor: UIColor.kindaBlack,
+            NSAttributedStringKey.font: UIFont(name: "IBMPlexSans-SemiBold", size: 18) as Any]
         navigationController?.navigationBar.titleTextAttributes = titleTextAttributes
     }
     
@@ -93,7 +99,7 @@ class SubscriptionsController: UICollectionViewController, UICollectionViewDeleg
         collectionView?.register(UICollectionViewCell.self, forSupplementaryViewOfKind: UICollectionElementKindSectionFooter, withReuseIdentifier: "footerId")
         collectionView?.backgroundColor = .white
 
-        collectionView?.register(FavoritesCell.self, forCellWithReuseIdentifier: "cellId")
+        collectionView?.register(PodcastCell.self, forCellWithReuseIdentifier: "cellId")
     }
     
     @objc fileprivate func deleteAllPodcasts() {
@@ -113,4 +119,20 @@ class SubscriptionsController: UICollectionViewController, UICollectionViewDeleg
             }
         }
     }
+    
+    
+}
+
+
+//MARK:- Observers
+extension SubscriptionsController {
+    
+    func setupObservers() {
+        NotificationCenter.default.addObserver(self, selector: #selector(didSubscribeToNewPodcast), name: .reloadPodcasts, object: nil)
+    }
+
+    @objc fileprivate func didSubscribeToNewPodcast() {
+        fetchFavoritePodcasts()
+    }
+    
 }

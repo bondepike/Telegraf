@@ -23,11 +23,11 @@ extension MasterController: ModalPlayerDelegate {
         let width = homeController.view.frame.width
         
         UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0.9, options: .curveEaseIn, animations: {
-            self.homeController.view.frame = CGRect(x: 0, y: -height + 49, width: width, height: height)
+            self.homeController.view.frame = CGRect(x: 0, y: -150, width: width, height: height)
         }) { (s) in
         }
         modalPlayer.dismissGesture.isEnabled = true
-        modalPlayer.presentGesture.isEnabled = false
+        modalPlayer.presentGesture.isEnabled = true
     }
     
     func handlePresentGesture(translation: CGPoint) {
@@ -42,7 +42,7 @@ extension MasterController: ModalPlayerDelegate {
         let height = homeController.view.frame.height
         let width = homeController.view.frame.width
         
-        homeController.view.frame = CGRect(x: 0, y: -height + 60 + translation.y * 0.6, width: width, height: height)
+        homeController.view.frame = CGRect(x: 0, y: -150 + translation.y * 0.6, width: width, height: height)
     }
     
 }

@@ -27,16 +27,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         setupJWT()
         getNotificationSettings()
-        
+        print("Launched YYY")
+
         return true
     }
     
-    fileprivate func setupJWT() {
-        
-        
+    fileprivate func setupJWT() {        
         if let jwt = UserDefaults.standard.string(forKey: "jwt") {
             print("JWT: \(jwt)")
-            
             NetworkAPI.shared.checkJWTValidation { (valid) in
                 if !valid {
                     print("is not valid")
@@ -47,46 +45,38 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     //self.saveToICloud(jwt)
                 }
             }
-            
-            
             return
         }
-        
-        print("Saving JWT..")
         NetworkAPI.shared.fetchJWT { (jwt) in
             UserDefaults.standard.set(jwt, forKey: "jwt")
             self.saveToICloud(jwt)
         }
-        
-        //let database = CKDatabase
-        
     }
     
     func saveToICloud(_ jwt: String) {
         let jwtRecord = CKRecord(recordType: "details")
         jwtRecord["jwt"] = jwt as CKRecordValue
-        
-        
         CKContainer.default().privateCloudDatabase.save(jwtRecord) { (record, err) in
             if let err = err {
                 print("Failed to save to iCloud: ", err)
                 return
             }
         }
-        
     }
     
     func setupAppearance() {
-        UINavigationBar.appearance().tintColor = .applePink
+        UINavigationBar.appearance().tintColor = .kindaBlack
+        //UIColor(red:0.57, green:0.60, blue:0.64, alpha:1.00)//.applePink
         UINavigationBar.appearance().backgroundColor = .white
 
-        //UINavigationBar.appearance().isTranslucent = false
+        UINavigationBar.appearance().isTranslucent = false
         
         UINavigationBar.appearance().shadowImage = UIImage()
-        UINavigationBar.appearance().setBackgroundImage(UIImage(), for: .default)
-        UINavigationBar.appearance().backgroundColor = .white
-        UINavigationBar.appearance().isTranslucent = false
-        UINavigationBar.appearance().layer.borderColor = UIColor.white.cgColor
+        
+        //UINavigationBar.appearance().setBackgroundImage(UIImage(), for: .default)
+        //UINavigationBar.appearance().backgroundColor = .white
+        //UINavigationBar.appearance().isTranslucent = false
+        //UINavigationBar.appearance().layer.borderColor = UIColor.white.cgColor
         
         UISearchBar.appearance().backgroundImage = UIImage()
         UISearchBar.appearance().layer.borderColor = UIColor.white.cgColor
@@ -95,7 +85,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         UITabBar.appearance().tintColor = .applePink//.ibmBlue
         
         UIBarButtonItem.appearance().setTitleTextAttributes([
-            NSAttributedStringKey.font: UIFont(name: "IBMPlexSans", size: 18) as Any
+            NSAttributedStringKey.font: UIFont(name: "IBMPlexSans", size: 18) as Any,
+            NSAttributedStringKey.foregroundColor : UIColor.kindaBlack,
             ], for: .normal)
         UISearchBar.appearance().tintColor = UIColor.applePink
     }

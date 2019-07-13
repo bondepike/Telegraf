@@ -7,25 +7,53 @@
 //
 
 import Foundation
-import Alamofire
-import FeedKit
-import CloudKit
+//import Alamofire
+
+typealias HTTPHeaders = [String : String]
 
 class NetworkAPI: NSObject, URLSessionTaskDelegate, URLSessionDownloadDelegate {
     
     static let shared = NetworkAPI()
-    private let host = "https://telegraf.adrianf.no/"
+    private let host = "https://telegraf.adrianf.no"
     var activeDownloads = [String : Episode]()
     
 }
 
+struct FeedEpisode: Decodable {
+    var Podcast: String?
+    var Name: String?
+    var PubDate: String?
+}
+
 extension NetworkAPI {
-    func fetchEpisodesFeed(feedURL: URL, completionHandler: @escaping (RSSFeed) -> ()) {
-        DispatchQueue.global(qos: .background).async {
-            let parser = FeedParser(URL: feedURL)// else { return }
-            guard let feed = parser.parse().rssFeed else { return }
-            completionHandler(feed)
+    func fetchFeed(completion: @escaping ([[FeedEpisode]]) -> ()){
+        guard let url = URL(string: "\(host)/feed") else { return }
+        //guard let url = URL(string: "http://localhost:8000/feed") else { return }
+        guard let jwt = UserDefaults.standard.string(forKey: "jwt") else { return }
+        do {
+            var req = URLRequest(url: url)
+            req.addValue(jwt, forHTTPHeaderField: "Json-Web-Token")
+            req.httpMethod = "POST"
+            URLSession.shared.dataTask(with: req) { (data, response, err) in
+                if let err = err {
+                    print("Failed to make /feed request: ", err)
+                    return
+                }
+                
+                guard let data = data else { return }
+                do {
+                    let decoded = try JSONDecoder().decode([[FeedEpisode]].self, from: data)
+                    completion(decoded)
+                } catch let err {
+                    print(err)
+                }
+                guard let response = response as? HTTPURLResponse else { return }
+                }.resume()
+        } catch let err {
+            print(err)
+            return
         }
+
     }
     
     func fetchPodcasts(with searchText: String, completionHandler: @escaping ([PodcastModel]?, Error?) -> ()) {
@@ -56,28 +84,23 @@ extension NetworkAPI {
         let headers: HTTPHeaders = [
             "Json-Web-Token": jwt,
         ]
-        
         do {
-            let req = try URLRequest(url: url, method: .post, headers: headers)
-            
+            var req = URLRequest(url: url)
+            req.httpMethod = "POST"
+            req.addValue(jwt, forHTTPHeaderField: "Json-Web-Token")
             URLSession.shared.dataTask(with: req) { (data, response, err) in
                 if let err = err {
                     print("Failed to make /jwt/valid request: ", err)
                     return
                 }
-                
                 guard let response = response as? HTTPURLResponse else { return }
-                
                 completion(response.statusCode == 200)
-                
             }.resume()
             
         } catch let err {
             print(err)
             return
         }
-        
-        
     }
     
     fileprivate func fetchGenericData<T: Decodable>(url: URL, completionHandler: @escaping (T) -> ()) {
@@ -101,7 +124,6 @@ extension NetworkAPI {
             }
             }.resume()
     }
-    
 }
 
 
@@ -121,15 +143,19 @@ extension NetworkAPI {
         ]
         
         do {
-            let urlRequest = try URLRequest(url: "\(host)/notify", method: HTTPMethod.post, headers: headers)
+            guard let url = URL(string: "\(host)/notify") else { return }
+            let urlRequest = URLRequest(url: url)
+            // TODO: Add headers to request (see above)
+            
             URLSession.shared.dataTask(with: urlRequest) { (data, response, err) in
                 if let err = err {
                     print("Error: ", err)
                     completion(NetworkError.failed)
                     return
                 }
+                
                 guard let resp = response as? HTTPURLResponse else {
-                    completion(NetworkError.wrongStatusCode)
+                    completion(NetworkError.wrongStatusCode)                    
                     return
                 }
                 
@@ -143,15 +169,18 @@ extension NetworkAPI {
         }
     }
     
-    func uploadNewSubscription(podcast: PodcastModel, completion: @escaping (Error?) -> ()) {
+    func uploadNewSubscription(podcast: PodcastsDataSource, completion: @escaping (Error?) -> ()) {
         guard let jwt = UserDefaults.standard.string(forKey: "jwt") else { return }
         
         let headers: HTTPHeaders = [
             "Json-Web-Token": jwt,
-            "Feed": podcast.feedUrl ?? ""
+            "Feed": podcast.feed ?? ""
         ]
+        
         do {
-            let urlRequest = try URLRequest(url: "\(host)/subscribe", method: HTTPMethod.post, headers: headers)
+            guard let url = URL(string: "\(host)/subscribe") else { return }
+            let urlRequest = URLRequest(url: url)
+            
             URLSession.shared.dataTask(with: urlRequest) { (data, res, err) in
                 guard let res = res as? HTTPURLResponse else { return }
                 print("Status Code: ", res.statusCode)
@@ -166,6 +195,28 @@ extension NetworkAPI {
         }
     }
     
+    func unsubscribe(podcast: PodcastsDataSource, completion: @escaping () -> ()) {
+        guard let jwt = UserDefaults.standard.string(forKey: "jwt") else { return }
+        
+        let headers: HTTPHeaders = [
+            "Json-Web-Token" : jwt,
+            "Feed": podcast.feed ?? ""
+        ]
+        
+        do {
+            guard let url = URL(string : "\(host)/unsubscribe") else { return }
+            let urlRequest = URLRequest(url: url)
+            URLSession.shared.dataTask(with: urlRequest) { (data, resp, err) in
+                if let err = err {
+                    print("Failed to unsubscribe: ", err)
+                }
+                completion()
+            }.resume()
+        } catch let err {
+            print(err)
+        }
+    }
+    
     func uploadDeviceToken(deviceToken: String) {
         
         guard let jwt = UserDefaults.standard.string(forKey: "jwt") else { return }
@@ -175,7 +226,9 @@ extension NetworkAPI {
             "Device-Token": deviceToken
         ]
         do {
-            let urlRequest = try URLRequest(url: "\(host)/device-token", method: HTTPMethod.post, headers: headers)
+            guard let url = URL(string: "\(host)/device-token") else { return }
+            let urlRequest = URLRequest(url: url)
+            
             URLSession.shared.dataTask(with: urlRequest, completionHandler: { (data, response, error) in
                 if let err = error {
                     print("Failed to push device token: ", err)
@@ -194,17 +247,7 @@ extension NetworkAPI {
 
 extension NetworkAPI {
     
-    func download(episode: Episode, episodeModel: EpisodeModel) {
-        let config = URLSessionConfiguration.background(withIdentifier: "no.adrianf.telegraf.\(episode.name ?? "unknown").background")
-        let session = URLSession(configuration: config)
-        
-        guard let url = URL(string: episodeModel.episodeUrl ?? "") else { return }
-        let task = session.downloadTask(with: url)
-        task.resume()
-        
-    }
-    
-    func downloadEpisode(episode: Episode, episodeModel: EpisodeModel, completionHandler: @escaping()->()) {
+    func downloadEpisode(episode: Episode, episodeModel: EpisodeDataSource, completionHandler: @escaping()->()) {
         guard var name = episode.name else { return }
         name = name.replacingOccurrences(of: " ", with: "")
         
@@ -212,7 +255,7 @@ extension NetworkAPI {
         let session = URLSession(configuration: config, delegate: self, delegateQueue: OperationQueue())
         guard let url = URL(string: episodeModel.episodeUrl ?? "") else { return }
         
-        guard let podcast = episode.podcast else { return }
+        guard let _ = episode.podcast else { return }
         activeDownloads[name] = episode
         
         session.downloadTask(with: url).resume()
@@ -313,18 +356,3 @@ extension NetworkAPI {
             ])
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

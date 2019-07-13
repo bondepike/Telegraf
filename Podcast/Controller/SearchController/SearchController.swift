@@ -33,6 +33,7 @@ class SearchController: UITableViewController {
         setupUI()
         setupNavigtionItems()
         setupSearchController()
+        setupObservers()
         
         navigationController?.navigationBar.backgroundColor = .white
         navigationController?.hidesBarsWhenKeyboardAppears = false
@@ -59,6 +60,7 @@ class SearchController: UITableViewController {
 
     
     @objc fileprivate func handleCustomLink() {
+        /*
         let popupController = UIAlertController(title: "Add a custom URL", message: "Type or paste the URL below", preferredStyle: .alert)
         popupController.addTextField { (textfield) in
         }
@@ -92,6 +94,8 @@ class SearchController: UITableViewController {
         }))
         
         present(popupController, animated: true, completion: nil)
+ 
+ */
     }
     
     fileprivate func setupUI() {

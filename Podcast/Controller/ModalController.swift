@@ -25,9 +25,7 @@ class ModalController: UINavigationController {
 
 //MARK:- Gestures
 extension ModalController {
-    
     @objc func handlePanGesture(gesture: UIPanGestureRecognizer) {
         modalControllerDelegate?.panDidUpdate(gesture: gesture)
     }
-
 }
