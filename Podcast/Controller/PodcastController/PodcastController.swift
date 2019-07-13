@@ -160,22 +160,22 @@ extension PodcastController {
     @objc fileprivate func handleSubscribe() {
         guard let podcast = Podcasts.shared.current, let image = headerView.podcastImageView.image else { return }
         
-        CoreDataManager.shared.saveNewPodcast(podcastModel: podcast, image: image) { (podcast, error) in
-            guard let podcast = podcast else { return }
-            Podcasts.shared.set(podcast: podcast)
-            DispatchQueue.main.async {
-                //self.subscriptionChangesDelegate?.subscribedToNew(podcast: podcast)
-                self.setupToolbar()
-                NotificationCenter.default.post(name: .reloadPodcasts, object: nil)
+        NetworkAPI.shared.uploadNewSubscription(podcast: podcast) { (err) in
+            if let err = err {
+                print("Failed to upload new subscription", err)
+                return
+            }
+            
+            CoreDataManager.shared.saveNewPodcast(podcastModel: podcast, image: image) { (podcast, error) in
+                guard let podcast = podcast else { return }
+                Podcasts.shared.set(podcast: podcast)
+                DispatchQueue.main.async {
+                    //self.subscriptionChangesDelegate?.subscribedToNew(podcast: podcast)
+                    NotificationCenter.default.post(name: .reloadPodcasts, object: nil)
+                    self.setupToolbar()
+                }
             }
         }
-        
-//        NetworkAPI.shared.uploadNewSubscription(podcast: podcast) { (err) in
-//            if let err = err {
-//                print("Failed to upload new subscription", err)
-//                return
-//            }
-//        }
     }
 }
 

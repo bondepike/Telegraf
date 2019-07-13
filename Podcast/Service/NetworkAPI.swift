@@ -26,7 +26,7 @@ struct FeedEpisode: Decodable {
 }
 
 extension NetworkAPI {
-    func fetchFeed(completion: @escaping ([[FeedEpisode]]) -> ()){
+    func fetchFeed(completion: @escaping ([[FeedEpisode]]) -> ()) {
         guard let url = URL(string: "\(host)/feed") else { return }
         //guard let url = URL(string: "http://localhost:8000/feed") else { return }
         guard let jwt = UserDefaults.standard.string(forKey: "jwt") else { return }
@@ -172,27 +172,20 @@ extension NetworkAPI {
     func uploadNewSubscription(podcast: PodcastsDataSource, completion: @escaping (Error?) -> ()) {
         guard let jwt = UserDefaults.standard.string(forKey: "jwt") else { return }
         
-        let headers: HTTPHeaders = [
-            "Json-Web-Token": jwt,
-            "Feed": podcast.feed ?? ""
-        ]
+        guard let url = URL(string: "\(host)/subscribe") else { return }
+        var urlRequest = URLRequest(url: url)
+        urlRequest.setValue(jwt, forHTTPHeaderField: "Json-Web-Token")
+        urlRequest.setValue(podcast.feed ?? "", forHTTPHeaderField: "Feed")
         
-        do {
-            guard let url = URL(string: "\(host)/subscribe") else { return }
-            let urlRequest = URLRequest(url: url)
+        URLSession.shared.dataTask(with: urlRequest) { (data, res, err) in
+            guard let res = res as? HTTPURLResponse else { return }
+            print("Status Code: ", res.statusCode)
+            if res.statusCode != 200 {
+                print("Failed to post new podcast")
+            }
             
-            URLSession.shared.dataTask(with: urlRequest) { (data, res, err) in
-                guard let res = res as? HTTPURLResponse else { return }
-                print("Status Code: ", res.statusCode)
-                if res.statusCode != 200 {
-                    print("Failed to post new podcast")
-                }
-                
-                completion(err)
-            }.resume()
-        } catch let err {
             completion(err)
-        }
+        }.resume()
     }
     
     func unsubscribe(podcast: PodcastsDataSource, completion: @escaping () -> ()) {
